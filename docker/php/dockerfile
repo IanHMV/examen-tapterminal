@@ -15,6 +15,11 @@ RUN apt-get update \
 # Composer: copiamos solo el ejecutable desde su imagen oficial
 COPY --from=composer:2.10 /usr/bin/composer /usr/bin/composer
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# Composer guarda su caché aquí (www-data no puede escribir en /var/www)
+ENV COMPOSER_HOME=/tmp/composer
 
 WORKDIR /var/www/html
+
+# Todo el contenedor (PHP-FPM, artisan, composer) corre como www-data:
+# un solo usuario, sin choques de permisos, y nunca como root
+USER www-data
