@@ -1,0 +1,19 @@
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Editores ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# --- Variables de Entorno ---
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# --- Logs ---
+*.log
