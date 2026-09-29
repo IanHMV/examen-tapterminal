@@ -68,10 +68,10 @@
         "policy": {
             "advisories": {
                 "ignore-id": {
-                    "PKSA-3r5d-mb8f-1qw9": "GHSA-5vg9-5847-vvmq (alta): CRLF en regla email. Laravel 11 sin parche (EOL). Mitigado: correos solo a direcciones de la BD + email:filter. Ver docs/adr/0001.",
-                    "PKSA-mdq4-51ck-6kdq": "CVE-2026-48019: mismo aviso que PKSA-3r5d-mb8f-1qw9 (otra fuente). Ver docs/adr/0001.",
-                    "PKSA-m5cs-t1y6-qpcs": "GHSA-crmm-hgp2-wgrp (media): Signed URL path confusion. No aplica: no usamos Storage::temporaryUrl() en disco local. Ver docs/adr/0001.",
-                    "PKSA-d5tc-s1qs-h781": "GHSA-jh5r-qr3c-85q8 (baja): XSS en página debug. Solo con APP_DEBUG=true; producción usa false. Ver docs/adr/0001."
+                    "PKSA-3r5d-mb8f-1qw9": "GHSA-5vg9-5847-vvmq (alta): CRLF en regla email. Laravel 11 sin parche (EOL). Mitigado: correos solo a direcciones de la BD + email:filter. Ver README > Decisiones técnicas.",
+                    "PKSA-mdq4-51ck-6kdq": "CVE-2026-48019: mismo aviso que PKSA-3r5d-mb8f-1qw9 (otra fuente). Ver README > Decisiones técnicas.",
+                    "PKSA-m5cs-t1y6-qpcs": "GHSA-crmm-hgp2-wgrp (media): Signed URL path confusion. No aplica: no usamos Storage::temporaryUrl() en disco local. Ver README > Decisiones técnicas.",
+                    "PKSA-d5tc-s1qs-h781": "GHSA-jh5r-qr3c-85q8 (baja): XSS en página debug. Solo con APP_DEBUG=true; producción usa false. Ver README > Decisiones técnicas."
                 }
             }
         }
