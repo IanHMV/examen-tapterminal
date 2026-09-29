@@ -1,0 +1,21 @@
+# Entorno de Desarrollo local.
+name: examen-tapterminal
+
+services:
+  # PHP-FPM 8.2: ejecuta Laravel.
+  # No publica puertos: solo Nginx puede hablarle.
+  api:
+    build: ./docker/php
+    volumes:
+      - ./backend:/var/www/html
+
+  # Nginx: la puerta de entrada HTTP → http://localhost:8000
+  nginx:
+    image: nginx:1.30-alpine
+    ports:
+      - "8000:80"   # "puerto_PC:puerto_del_contenedor"
+    volumes:
+      - ./backend:/var/www/html   # misma ruta que en "api" (Nginx entrega los estáticos)
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro   # ro = solo lectura
+    depends_on:
+      - api
