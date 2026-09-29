@@ -40,3 +40,5 @@ El examen exige Laravel 11, que dejó de recibir parches de seguridad en marzo d
 Composer 2.10 bloquea versiones con avisos conocidos, así que se ignoran **solo** los que
 afectan a la última 11.x (`backend/composer.json` → `config.policy.advisories.ignore-id`).
 Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
+
+
