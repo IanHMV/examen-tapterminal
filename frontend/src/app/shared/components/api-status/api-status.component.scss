@@ -1,0 +1,24 @@
+.api-status {
+  max-width: 28rem;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid #9ca3af;
+  border-radius: 0.5rem;
+  background: #f9fafb;
+
+  &--online {
+    border-left-color: #16a34a;
+  }
+
+  &--offline {
+    border-left-color: #dc2626;
+  }
+
+  p {
+    margin: 0 0 0.5rem;
+  }
+
+  &__detail {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+}
