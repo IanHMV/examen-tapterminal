@@ -1,7 +1,10 @@
-/** Respuesta de GET /api/v1/healthcheck. */
+/** Respuesta de GET /api/v1/healthcheck (documentada en Swagger). */
 export interface Healthcheck {
-  status: string;
+  status: 'ok' | 'degraded';
   service: string;
-  /** Fecha ISO 8601 en UTC.*/
+  checks: {
+    database: 'ok' | 'error';
+  };
+  /** Fecha ISO 8601 en UTC; se muestra en hora local con DATE_TIME_FORMAT. */
   timestamp: string;
 }

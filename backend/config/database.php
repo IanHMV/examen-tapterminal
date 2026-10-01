@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'mongodb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -30,6 +30,17 @@ return [
     */
 
     'connections' => [
+
+        // Conexión principal del sistema (NoSQL). mongodb/laravel-mongodb.
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('MONGODB_URI'),
+            'database' => env('MONGODB_DATABASE', 'examen_tapterminal'),
+            'options' => [
+                // Si MongoDB no responde, fallar en 3 s en lugar de esperar 30 s.
+                'serverSelectionTimeoutMS' => (int) env('MONGODB_TIMEOUT_MS', 3000),
+            ],
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',
