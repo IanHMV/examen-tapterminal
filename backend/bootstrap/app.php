@@ -12,7 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Laravel corre detrás de proxies (Nginx del host y Nginx del contenedor).
+        // Confiar en sus cabeceras X-Forwarded-* para conocer el protocolo real (https)
+        // y la IP del visitante. Solo se confía en redes privadas (Docker y el propio
+        // servidor): nadie puede hacerse pasar por un proxy.
+        $middleware->trustProxies(at: ['PRIVATE_SUBNETS']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Una API nunca responde HTML: los errores bajo /api/* siempre se devuelven en JSON.
