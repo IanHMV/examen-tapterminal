@@ -1,0 +1,47 @@
+# ==================================================================
+# Imagen de Produccion del backend (Laravel 11 · PHP 8.2)
+# ==================================================================
+
+# ---------- PHP con las extensiones que necesita la app ----------
+FROM php:8.2-fpm-bookworm AS base
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unzip libzip-dev libssl-dev \
+    && docker-php-ext-install zip opcache \
+    && pecl install mongodb-2.5.3 \
+    && docker-php-ext-enable mongodb \
+    && rm -rf /var/lib/apt/lists/* /tmp/pear
+
+# php.ini de producción (no muestra errores en pantalla) + nuestros ajustes.
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY docker/php/conf.d/production.ini "$PHP_INI_DIR/conf.d/production.ini"
+
+# ---------- dependencias de Composer (sin las de desarrollo) ----------
+FROM base AS vendor
+
+COPY --from=composer:2.10 /usr/bin/composer /usr/bin/composer
+WORKDIR /app
+
+# Primero solo composer.json/lock: si no cambian, Docker reutiliza esta capa (build más rápido).
+COPY backend/composer.json backend/composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-interaction
+
+COPY backend/ ./
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative
+
+# ---------- imagen final (sin Composer ni archivos de construcción) ----------
+FROM base AS runtime
+
+WORKDIR /var/www/html
+
+# www-data solo puede escribir donde Laravel lo necesita.
+COPY --from=vendor /app ./
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint
+RUN chmod 755 /usr/local/bin/entrypoint
+
+USER www-data
+
+ENTRYPOINT ["entrypoint"]
+CMD ["php-fpm"]

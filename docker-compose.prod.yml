@@ -1,0 +1,56 @@
+# Entorno de Produccion (Sirve tambien para local).
+name: examen-tapterminal-prod
+
+services:
+  # Nginx + Angular compilado. Única puerta de entrada.
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    ports:
+      # Solo accesible desde el propio servidor; el Nginx del host lo publicará
+      - "127.0.0.1:8090:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    healthcheck:
+      # Prueba de punta a punta: Nginx → PHP-FPM → Laravel → MongoDB.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/api/v1/healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # Laravel en PHP-FPM, con el código dentro de la imagen.
+  api:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile.prod
+    env_file: ./backend/.env.production
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # MongoDB: sin puertos publicados (solo la red interna puede llegar).
+  mongo:
+    image: mongo:8.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?Falta MONGO_ROOT_USERNAME en el .env de la raíz}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?Falta MONGO_ROOT_PASSWORD en el .env de la raíz}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:?Falta MONGO_DATABASE en el .env de la raíz}
+      MONGO_APP_USERNAME: ${MONGO_APP_USERNAME:?Falta MONGO_APP_USERNAME en el .env de la raíz}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:?Falta MONGO_APP_PASSWORD en el .env de la raíz}
+    volumes:
+      - mongo_data:/data/db
+      - ./docker/mongo/init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  mongo_data:
