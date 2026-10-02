@@ -44,6 +44,7 @@ describe('ProductDetailComponent', () => {
     expect(details).toContain('Urrea');
     expect(details).toContain('$119.00');
     expect(details).toMatch(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/); // DD/MM/YYYY HH:MM
+    expect(screen().querySelector('.product-detail__edit')?.getAttribute('href')).toBe('/productos/PRD-0003/editar');
   });
 
   it('avisa que el producto no existe cuando la API responde 404', async () => {

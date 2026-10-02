@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
@@ -14,6 +15,28 @@ use OpenApi\Attributes as OA;
 /**
  * Catálogo de productos.
  */
+#[OA\Parameter(
+    parameter: 'ProductCode',
+    name: 'code',
+    in: 'path',
+    required: true,
+    description: 'Código del producto.',
+    schema: new OA\Schema(type: 'string', example: 'PRD-0001')
+)]
+#[OA\Response(
+    response: 'ProductValidationError',
+    description: 'Los datos no son válidos.',
+    content: new OA\JsonContent(
+        ref: '#/components/schemas/ValidationError',
+        example: [
+            'message' => 'El campo nombre es obligatorio.',
+            'errors' => [
+                'name' => ['El campo nombre es obligatorio.'],
+                'price' => ['El campo precio no debe ser mayor que 999.99.'],
+            ],
+        ]
+    )
+)]
 class ProductController extends Controller
 {
     /** Productos por página en el listado. */
@@ -80,20 +103,7 @@ class ProductController extends Controller
                     ]
                 )
             ),
-            new OA\Response(
-                response: 422,
-                description: 'Los datos no son válidos.',
-                content: new OA\JsonContent(
-                    ref: '#/components/schemas/ValidationError',
-                    example: [
-                        'message' => 'El campo nombre es obligatorio. (y 1 error más)',
-                        'errors' => [
-                            'name' => ['El campo nombre es obligatorio.'],
-                            'price' => ['El campo precio no debe ser mayor que 999.99.'],
-                        ],
-                    ]
-                )
-            ),
+            new OA\Response(ref: '#/components/responses/ProductValidationError', response: 422),
         ]
     )]
     public function store(StoreProductRequest $request): JsonResponse
@@ -112,15 +122,7 @@ class ProductController extends Controller
         summary: 'Ver un producto',
         description: 'Busca el producto por su código (PRD-0001).',
         tags: ['Productos'],
-        parameters: [
-            new OA\Parameter(
-                name: 'code',
-                in: 'path',
-                required: true,
-                description: 'Código del producto.',
-                schema: new OA\Schema(type: 'string', example: 'PRD-0001')
-            ),
-        ],
+        parameters: [new OA\Parameter(ref: '#/components/parameters/ProductCode')],
         responses: [
             new OA\Response(
                 response: 200,
@@ -136,6 +138,39 @@ class ProductController extends Controller
     )]
     public function show(Product $product): ProductResource
     {
+        return ProductResource::make($product);
+    }
+
+    #[OA\Put(
+        path: '/api/v1/products/{code}',
+        operationId: 'updateProduct',
+        summary: 'Editar un producto',
+        description: 'Reemplaza nombre, marca y precio. El código y la fecha de creación no cambian.',
+        tags: ['Productos'],
+        parameters: [new OA\Parameter(ref: '#/components/parameters/ProductCode')],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/ProductInput')
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Producto actualizado.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'data', ref: '#/components/schemas/Product'),
+                    ]
+                )
+            ),
+            new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+            new OA\Response(ref: '#/components/responses/ProductValidationError', response: 422),
+        ]
+    )]
+    public function update(UpdateProductRequest $request, Product $product): ProductResource
+    {
+        // Igual que en el alta: solo los campos validados; "code" se ignora aunque se envíe.
+        $product->update($request->validated());
+
         return ProductResource::make($product);
     }
 }

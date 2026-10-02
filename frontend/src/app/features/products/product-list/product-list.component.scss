@@ -28,6 +28,10 @@
   .table__number {
     text-align: right;
   }
+
+  .table__actions a + a {
+    margin-left: 0.75rem;
+  }
 }
 
 .pagination {

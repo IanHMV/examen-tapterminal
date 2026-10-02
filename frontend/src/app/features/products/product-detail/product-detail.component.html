@@ -26,6 +26,7 @@
           <dt>Última modificación</dt>
           <dd>{{ product.updated_at | date: dateTimeFormat }}</dd>
         </dl>
+        <a class="button product-detail__edit" [routerLink]="['/productos', product.code, 'editar']">Editar</a>
       }
     }
   }

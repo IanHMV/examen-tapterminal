@@ -91,3 +91,4 @@ Registro del avance del proyecto
 | TICK-12 | 2026-10-01 | Modelo `Product` en MongoDB: código autogenerado atómico (`PRD-0001`), precio `Decimal128`, índices y datos iniciales. | [#13](https://github.com/IanHMV/examen-tapterminal/pull/13) |
 | TICK-13 | 2026-10-01 | Alta de productos: `POST /api/v1/products`, validación en Laravel y Angular, y mensajes en español. | [#14](https://github.com/IanHMV/examen-tapterminal/pull/14) |
 | TICK-14 | 2026-10-01 | Listado paginado y detalle de productos (`GET /api/v1/products`, `GET /api/v1/products/{code}`), publicado en producción. | [#15](https://github.com/IanHMV/examen-tapterminal/pull/15) |
+| TICK-15 | 2026-10-01 | Edición de productos: `PUT /api/v1/products/{code}` y el mismo formulario del alta en modo edición. | [#16](https://github.com/IanHMV/examen-tapterminal/pull/16) |

@@ -33,4 +33,10 @@ export class ProductService {
       .post<ApiResource<Product>>(this.baseUrl, input)
       .pipe(map((response) => response.data));
   }
+
+  update(code: string, input: ProductInput): Observable<Product> {
+    return this.http
+      .put<ApiResource<Product>>(`${this.baseUrl}/${encodeURIComponent(code)}`, input)
+      .pipe(map((response) => response.data));
+  }
 }
