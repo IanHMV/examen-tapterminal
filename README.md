@@ -4,21 +4,26 @@ Sistema web desarrollado para el examen de admisión del Área de Desarrollo de 
 
 ## Stack
 
-| Capa              | Tecnología                      |
-|-------------------|---------------------------------|
-| Backend           | Laravel 11 · PHP 8.2            |
-| Frontend          | Angular 19 · TypeScript 5       |
-| Base de datos     | MongoDB                         |
-| Documentación API | Swagger (OpenAPI 3)             |
-| Infraestructura   | Docker · Docker Compose · Nginx |
+| Capa              | Tecnología                             |
+|-------------------|----------------------------------------|
+| Backend           | Laravel 11 · PHP 8.2                   |
+| Frontend          | Angular 19 · TypeScript 5              |
+| Base de datos     | MongoDB 8.0 (GridFS para las fotos)    |
+| Documentación API | Swagger (OpenAPI 3) · Postman          |
+| Pruebas           | PHPUnit 11 · Jasmine + Karma           |
+| Infraestructura   | Docker · Docker Compose · Nginx        |
+| CI/CD             | GitHub Actions                         |
 
 ## Estructura
 
 ```
 .
-├── backend/    # API REST (Laravel 11)
-├── frontend/   # SPA (Angular 19)
-└── docker/     # Dockerfiles y configuración de Nginx
+├── backend/    # API REST (Laravel 11) y sus pruebas (PHPUnit)
+├── frontend/   # SPA (Angular 19) y sus pruebas (Jasmine + Karma)
+├── docker/     # Dockerfiles y configuración de Nginx
+├── postman/    # Colección y entornos de Postman
+├── scripts/    # deploy.sh: despliegue en el VPS
+└── .github/    # Workflows de GitHub Actions (CI/CD)
 ```
 
 ## Convenciones
@@ -31,6 +36,74 @@ Sistema web desarrollado para el examen de admisión del Área de Desarrollo de 
 
 - Aplicación: https://ianmartinez.dev/examen-tapterminal/
 - Documentación de la API (Swagger): https://ianmartinez.dev/examen-tapterminal/api/documentation
+- Colección de Postman: [`postman/`](postman/) (ver [Postman](#postman))
+
+## Requisitos del examen
+
+| Requisito | Cómo se cumple |
+|---|---|
+| Productos: código automático, nombre, marca, precio (máx. 3 dígitos) y fecha; tabla con ver, editar y eliminar | Pantalla "Productos" y `/api/v1/products`. Código atómico `PRD-0001`, precio de 0.01 a 999.99 en `Decimal128` |
+| Usuarios: código, nombre, foto (requerida), usuario = correo único, teléfono opcional con lada; el detalle muestra sus perfiles | Pantalla "Usuarios" y `/api/v1/users`. Foto en GridFS, teléfono en formato E.164 |
+| Perfiles: código, nombre y fecha; detalle en ventana modal con sus secciones | Pantalla "Perfiles" (modal) y `/api/v1/profiles` |
+| Exportar cada listado a PDF y Excel, con fechas DD/MM/YYYY HH:MM | Botones en cada listado y `GET /api/v1/{listado}/export?format=xlsx\|pdf` |
+| Iniciar y cerrar sesión | Laravel Sanctum (tokens Bearer que vencen en 8 horas) |
+| Recuperar la contraseña por correo | Enlace de un solo uso (60 minutos) y correo de bienvenida a los usuarios nuevos |
+| Acceso solo a las secciones de los perfiles del usuario | Middleware en la API (403), y menú y guard en Angular |
+| Contraseñas cifradas y validación de formularios | bcrypt; validación en Laravel (`FormRequest`) y en Angular, con mensajes en español |
+| Bitácora: guardar el dato anterior para compararlo con el actual | Pantalla "Bitácora" con comparación campo por campo (`audit_logs`) |
+| Laravel 11 + PHP 8.2, Angular 19 + TypeScript 5, MongoDB, Swagger/Postman, Git, PSR-12 | Ver [Stack](#stack). Pint revisa PSR-12 en cada PR |
+| Extras: pruebas y CI/CD | 38 pruebas de la API, 142 de Angular, GitHub Actions y despliegue automático |
+
+## Cómo ejecutarlo en local
+
+Requisitos: Docker Desktop, Node.js 20 o superior y Git.
+
+```bash
+git clone https://github.com/IanHMV/examen-tapterminal.git
+cd examen-tapterminal
+
+# 1. Variables de entorno (los .env no están en Git)
+cp .env.example .env                  # contraseñas de MongoDB: cámbialas
+cp backend/.env.example backend/.env  # usa la misma clave de app_user en MONGODB_URI y define ADMIN_EMAIL y ADMIN_PASSWORD
+
+# 2. API, MongoDB y Mailpit
+docker compose up -d
+docker compose exec api composer install
+docker compose exec api php artisan key:generate
+docker compose exec api php artisan migrate
+docker compose exec api php artisan db:seed   # perfiles, productos de ejemplo y el administrador
+
+# 3. Angular
+cd frontend
+npm ci
+npm start
+```
+
+| Servicio | Dirección |
+|---|---|
+| Aplicación (inicia sesión con `ADMIN_EMAIL` y `ADMIN_PASSWORD`) | http://localhost:4200 |
+| API | http://localhost:8000/api/v1 |
+| Swagger | http://localhost:8000/api/documentation |
+| Mailpit (correos de desarrollo) | http://localhost:8025 |
+
+Para probar la versión de producción en tu equipo, crea `backend/.env.production` a partir de
+`backend/.env.production.example` y ejecuta `docker compose -f docker-compose.prod.yml up -d --build`.
+Queda en http://localhost:8090/examen-tapterminal/.
+
+## Postman
+
+1. Importa en Postman los 3 archivos de [`postman/`](postman/): la colección y los entornos "Local" y "Producción".
+2. Elige el entorno y escribe tu correo y contraseña en las variables `email` y `password`.
+3. Ejecuta "Sesión → Iniciar sesión". El token se guarda solo y las demás peticiones lo envían como
+   `Authorization: Bearer {{token}}`.
+
+- Las 30 rutas están organizadas por sección. Cada una trae ejemplos de respuesta (pestaña "Examples") y
+  pruebas (pestaña "Tests").
+- "Run collection" recorre todo de principio a fin: crea, consulta, edita, exporta y elimina un registro de
+  cada tipo, porque cada alta guarda su código en una variable.
+- "Pedir un enlace" envía un correo real al usuario con el que iniciaste sesión.
+- Las exportaciones se descargan con "Send and Download".
+- La colección se generó a partir de la especificación OpenAPI, así que coincide con Swagger.
 
 ## Decisiones técnicas
 
@@ -218,6 +291,8 @@ Los nombres van en inglés en el código y en la base de datos (`products`, `pri
   que es atómico: dos altas simultáneas nunca reciben el mismo código. En una prueba con 20 altas
   simultáneas, "contar + 1" repitió 19 códigos y el contador ninguno. El índice único de `code` es
   una segunda barrera, y los códigos no se reutilizan aunque se borre un producto.
+- **Puede haber huecos en los códigos:** si un alta falla después de pedir el número (por ejemplo, por
+  una clave duplicada), ese número se pierde, como en las secuencias de SQL. Nunca hay códigos repetidos.
 - **`code` fuera de `$fillable`:** el cliente no puede asignarlo ni falsificarlo.
 - **Borrado físico:** eliminar quita el documento de MongoDB (`DELETE` → 204) y no se puede deshacer;
   por eso la interfaz pide confirmación. El contador no retrocede: el código borrado no se reutiliza.
@@ -350,3 +425,4 @@ Registro del avance del proyecto
 | TICK-23 | 2026-10-02 | Exportación de cada listado a Excel y PDF desde la API (todos los registros, fechas DD/MM/YYYY HH:MM en la hora local) y botones en Angular. | [#25](https://github.com/IanHMV/examen-tapterminal/pull/25) |
 | TICK-24 | 2026-10-02 | Pruebas de la API con PHPUnit contra un MongoDB desechable: reglas del examen, seguridad y regresiones. | [#26](https://github.com/IanHMV/examen-tapterminal/pull/26) |
 | TICK-25 | 2026-10-02 | CI/CD con GitHub Actions: pruebas, PSR-12, Swagger e imágenes en cada PR, validación del título y despliegue automático al VPS. | [#27](https://github.com/IanHMV/examen-tapterminal/pull/27) |
+| TICK-26 | 2026-10-02 | Colección de Postman (30 rutas, ejemplos y pruebas) generada desde OpenAPI, guía para ejecutarlo en local y verificación final. | [#28](https://github.com/IanHMV/examen-tapterminal/pull/28) |
