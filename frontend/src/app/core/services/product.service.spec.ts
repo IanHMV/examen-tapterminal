@@ -3,7 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../environments/environment';
-import { buildPage, buildProduct } from '../../testing/product.fixtures';
+import { buildPage } from '../../testing/pagination.fixtures';
+import { buildProduct } from '../../testing/product.fixtures';
 import { Paginated } from '../models/api.model';
 import { Product } from '../models/product.model';
 import { ProductService } from './product.service';

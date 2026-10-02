@@ -28,7 +28,6 @@ type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
   selector: 'app-product-form',
   imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe],
   templateUrl: './product-form.component.html',
-  styleUrl: './product-form.component.scss',
 })
 export class ProductFormComponent {
   private readonly fb = inject(NonNullableFormBuilder);

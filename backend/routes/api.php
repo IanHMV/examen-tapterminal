@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\V1\HealthcheckController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\SectionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,4 +19,7 @@ Route::prefix('v1')->name('v1.')->group(function () {
     Route::get('/healthcheck', HealthcheckController::class)->name('healthcheck');
 
     Route::apiResource('products', ProductController::class);
+
+    Route::get('/sections', SectionController::class)->name('sections.index');
+    Route::apiResource('profiles', ProfileController::class);
 });

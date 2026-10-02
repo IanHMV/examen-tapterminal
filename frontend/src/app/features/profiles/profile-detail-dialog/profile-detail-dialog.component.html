@@ -1,0 +1,26 @@
+<dialog #dialog class="dialog" aria-labelledby="profile-detail-title">
+  @if (profile(); as profile) {
+    <h2 id="profile-detail-title" class="dialog__title">Detalle del perfil</h2>
+    <dl class="details">
+      <dt>Código</dt>
+      <dd>{{ profile.code }}</dd>
+      <dt>Nombre</dt>
+      <dd>{{ profile.name }}</dd>
+      <dt>Fecha de creación</dt>
+      <dd>{{ profile.created_at | date: dateTimeFormat }}</dd>
+    </dl>
+
+    <h3 class="profile-detail__subtitle">Secciones</h3>
+    <ul class="profile-detail__sections">
+      @for (section of profile.sections; track section.key) {
+        <li>{{ section.name }}</li>
+      } @empty {
+        <li>Sin secciones asignadas.</li>
+      }
+    </ul>
+  }
+
+  <div class="dialog__actions">
+    <button type="button" class="button button--secondary" (click)="close()">Cerrar</button>
+  </div>
+</dialog>

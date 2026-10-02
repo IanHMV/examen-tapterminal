@@ -1,0 +1,70 @@
+<section>
+  <header class="page-header">
+    <h2>Perfiles</h2>
+    <a class="button" routerLink="/perfiles/nuevo">Nuevo perfil</a>
+  </header>
+
+  @if (notice(); as message) {
+    <p class="alert alert--success" role="status">{{ message }}</p>
+  }
+
+  @if (deleteError(); as message) {
+    <p class="alert alert--error" role="alert">{{ message }}</p>
+  }
+
+  @switch (state()) {
+    @case ('loading') {
+      <p>Cargando perfiles…</p>
+    }
+    @case ('error') {
+      <p class="alert alert--error" role="alert">No se pudo cargar el listado. Intenta de nuevo.</p>
+    }
+    @case ('ready') {
+      @if (result(); as page) {
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Fecha de creación</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (profile of page.data; track profile.id) {
+              <tr>
+                <td>{{ profile.code }}</td>
+                <td>{{ profile.name }}</td>
+                <td>{{ profile.created_at | date: dateTimeFormat }}</td>
+                <td class="table__actions">
+                  <button type="button" class="link-button" (click)="showDetail(profile)">Ver</button>
+                  <a [routerLink]="['/perfiles', profile.code, 'editar']">Editar</a>
+                  <button type="button" class="link-button link-button--danger" [disabled]="deleting()"
+                    (click)="askDelete(profile)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4">No hay perfiles en esta página.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <app-pagination [page]="page" itemsLabel="perfiles" />
+      }
+    }
+  }
+
+  <!-- Fuera del @switch: siempre existen, aunque la tabla se esté recargando. -->
+  <app-profile-detail-dialog [profile]="selected()" />
+
+  <app-confirm-dialog title="¿Eliminar perfil?" confirmLabel="Eliminar" (confirmed)="deletePending()">
+    @if (pendingDelete(); as profile) {
+      <p>Se eliminará <strong>{{ profile.code }}</strong> · {{ profile.name }}.</p>
+      <p>Esta acción no se puede deshacer.</p>
+    }
+  </app-confirm-dialog>
+</section>

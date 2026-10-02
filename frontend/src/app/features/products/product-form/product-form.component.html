@@ -1,10 +1,10 @@
-<section class="product-form">
+<section class="form-page">
   @if (isEdit) {
     <h2>Editar producto</h2>
-    <p class="product-form__hint">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
+    <p class="form-page__hint">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
   } @else {
     <h2>Nuevo producto</h2>
-    <p class="product-form__hint">El código y la fecha de creación se asignan automáticamente.</p>
+    <p class="form-page__hint">El código y la fecha de creación se asignan automáticamente.</p>
   }
 
   @if (savedProduct(); as product) {
@@ -95,7 +95,7 @@
           }
         </div>
 
-        <div class="product-form__actions">
+        <div class="form-actions">
           <button type="submit" class="button" [disabled]="saving()">
             @if (saving()) {
               Guardando…
