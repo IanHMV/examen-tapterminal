@@ -126,4 +126,35 @@ describe('AuthService', () => {
     expect(service.token()).toBeNull();
     expect(localStorage.getItem(SESSION_STORAGE_KEY)).toBeNull();
   });
+
+  it('forgotPassword() envía el correo y entrega el mensaje de la API', () => {
+    const service = createService();
+    let message = '';
+
+    service.forgotPassword('ana@example.com').subscribe((value) => (message = value));
+
+    const request = httpTesting.expectOne(`${authUrl}/forgot-password`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ email: 'ana@example.com' });
+    request.flush({ message: 'Si el correo está registrado, te enviamos un enlace.' });
+
+    expect(message).toBe('Si el correo está registrado, te enviamos un enlace.');
+  });
+
+  it('resetPassword() envía el token, el correo y la contraseña nueva', () => {
+    const service = createService();
+    const input = {
+      token: 'abc123',
+      email: 'ana@example.com',
+      password: 'Puerto-2026',
+      password_confirmation: 'Puerto-2026',
+    };
+
+    service.resetPassword(input).subscribe();
+
+    const request = httpTesting.expectOne(`${authUrl}/reset-password`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(input);
+    request.flush({ message: 'Tu contraseña se actualizó.' });
+  });
 });

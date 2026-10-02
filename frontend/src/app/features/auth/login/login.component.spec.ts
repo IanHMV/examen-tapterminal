@@ -72,6 +72,13 @@ describe('LoginComponent', () => {
     httpTesting.expectNone(loginUrl);
   });
 
+  it('tiene un enlace para recuperar la contraseña', async () => {
+    await harness.navigateByUrl('/login', LoginComponent);
+
+    const link = screen().querySelector('a[href="/recuperar-contrasena"]');
+    expect(link?.textContent?.trim()).toBe('¿Olvidaste tu contraseña?');
+  });
+
   it('al entrar, regresa a la pantalla que pedía (returnUrl)', async () => {
     await loginAt('/login?returnUrl=%2Fusuarios%2FUSR-0002');
     httpTesting.expectOne(loginUrl).flush(buildLoginResponse());

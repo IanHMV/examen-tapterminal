@@ -15,6 +15,20 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
+  {
+    path: 'recuperar-contrasena',
+    title: 'Recuperar contraseña | Examen TAP Terminal',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
+  },
+  // Sin guard: el enlace del correo debe abrir aunque haya otra sesión iniciada en el navegador.
+  {
+    path: 'restablecer-contrasena',
+    title: 'Elegir contraseña | Examen TAP Terminal',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent),
+  },
   // Todo lo demás requiere sesión (authGuard) y la sección de cada pantalla (sectionGuard).
   {
     path: '',

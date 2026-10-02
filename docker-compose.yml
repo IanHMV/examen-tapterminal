@@ -39,5 +39,12 @@ services:
       - mongo_data:/data/db                                   # los datos sobreviven a "docker compose down"
       - ./docker/mongo/init:/docker-entrypoint-initdb.d:ro    # scripts que corren solo la 1.ª vez
 
+  # Mailpit: atrapa los correos de desarrollo para verlos en http://localhost:8025.
+  # Laravel le envía por SMTP a "mailpit:1025" dentro de la red de Docker; nada sale a internet.
+  mailpit:
+    image: axllent/mailpit:v1.31
+    ports:
+      - "127.0.0.1:8025:8025"   # bandeja de entrada (solo desde tu PC)
+
 volumes:
   mongo_data:

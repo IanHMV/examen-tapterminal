@@ -5,7 +5,8 @@
   } @else {
     <h2>Nuevo usuario</h2>
     <p class="form-page__hint">
-      El código y la fecha de creación se asignan automáticamente. El usuario recibirá su contraseña por correo.
+      El código y la fecha de creación se asignan automáticamente. El usuario recibirá un correo con un enlace
+      para elegir su contraseña.
     </p>
   }
 
@@ -17,6 +18,9 @@
         Se creó el usuario
       }
       <a [routerLink]="['/usuarios', user.code]"><strong>{{ user.code }}</strong></a> ({{ user.email }}).
+      @if (!isEdit) {
+        Le enviamos un correo para que elija su contraseña.
+      }
     </p>
   }
 

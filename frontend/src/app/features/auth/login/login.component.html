@@ -1,4 +1,4 @@
-<section class="login">
+<section class="auth-card">
   <h2>Iniciar sesión</h2>
 
   @if (errorMessage(); as message) {
@@ -32,8 +32,10 @@
       }
     </div>
 
-    <button type="submit" class="button login__submit" [disabled]="submitting()">
+    <button type="submit" class="button auth-card__submit" [disabled]="submitting()">
       {{ submitting() ? 'Entrando…' : 'Entrar' }}
     </button>
   </form>
+
+  <p class="auth-card__footer"><a routerLink="/recuperar-contrasena">¿Olvidaste tu contraseña?</a></p>
 </section>

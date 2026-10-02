@@ -45,7 +45,8 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 
 - **Tokens Bearer, no cookies:** `POST /api/v1/auth/login` devuelve un token que se envía en
   `Authorization: Bearer <token>`. La API no guarda sesiones y el mismo token sirve en Swagger
-  ("Authorize") y Postman. Todas las rutas lo exigen, salvo el healthcheck y el login.
+  ("Authorize") y Postman. Todas las rutas lo exigen, salvo el healthcheck, el login y la recuperación
+  de contraseña.
 - **Vencimiento automático:** el token dura 8 horas (`SANCTUM_EXPIRATION`). Un índice TTL de MongoDB
   sobre `expires_at` borra los tokens vencidos sin tareas programadas. Cerrar sesión revoca el token.
 - **Login difícil de atacar:** máximo 5 intentos por minuto por correo e IP (429), el mismo mensaje
@@ -56,6 +57,32 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 - **En Angular:** el token se guarda en `localStorage` y un interceptor lo agrega **solo** a las
   peticiones a la API. Si la API responde 401, se cierra la sesión y se vuelve al login recordando la
   pantalla (solo se aceptan rutas internas como destino).
+
+### Recuperación de contraseña y correo de bienvenida
+
+- **Enlace de un solo uso, nunca una contraseña por correo:** "¿Olvidaste tu contraseña?" envía un
+  enlace que vence en 60 minutos y abre una pantalla para elegir una contraseña nueva. Así lo recomienda
+  OWASP: la contraseña no queda guardada en el buzón y la actual sigue sirviendo hasta que se usa el
+  enlace. Es la interpretación de "enviar credenciales al correo registrado": el correo lleva el
+  usuario y el medio para entrar.
+- **Bienvenida:** el alta de usuarios no tiene contraseña, así que el usuario nuevo recibe un correo con
+  su usuario y un enlace (el mismo mecanismo) para elegir la suya.
+- **Correo no registrado:** `POST /api/v1/auth/forgot-password` responde 422 "Usuario no encontrado, no es
+  posible enviar el correo", para que el usuario sepa si escribió mal su correo. Es una decisión de
+  usabilidad: a cambio, la API revela qué correos están registrados, y el límite de 5 solicitudes por minuto
+  por IP frena a quien intente probar muchos. Si ese correo ya pidió un enlace hace menos de un minuto,
+  responde 429. El correo se envía después de responder (`defer`): la respuesta no espera al servidor de correo.
+- **Enlace inválido sin detalles:** un enlace vencido, ya usado o de otro correo recibe el mismo mensaje.
+- **El token no queda en los registros:** va después de `#` en el enlace
+  (`/restablecer-contrasena?email=…#token`) y el navegador nunca envía esa parte al servidor (Nginx,
+  Cloudflare). En MongoDB solo se guarda su hash bcrypt.
+- **Límites:** máximo 5 solicitudes por minuto desde cada IP (429) y un enlace por minuto para cada correo.
+- **Al cambiar la contraseña se cierran todas las sesiones** del usuario: si alguien tenía un token, deja
+  de servir.
+- **Contraseña nueva:** de 8 a 72 caracteres (bcrypt ignora lo que pasa de 72 bytes), con al menos una
+  letra y un número. Laravel (`ResetPasswordRequest`) y Angular aplican la misma regla.
+- **Servidor de correo:** en desarrollo, Mailpit atrapa los correos y los muestra en
+  http://localhost:8025 (no salen a internet); en producción, Gmail por SMTP con contraseña de aplicación.
 
 ### Permisos por sección
 
@@ -147,11 +174,25 @@ Los nombres van en inglés en el código y en la base de datos (`products`, `pri
   la URL lleva `?v=<id de la foto>`, así que cambia cuando cambia la foto y se puede guardar en caché.
   Solo se aceptan JPG, PNG o WebP de hasta 2 MB, revisando el contenido real del archivo (SVG no:
   puede llevar JavaScript).
-- **Contraseña generada por el sistema:** el alta del examen no tiene contraseña. La API genera una
-  aleatoria, la guarda cifrada con bcrypt y nunca la devuelve; el usuario recibe sus credenciales por
-  correo. El administrador inicial se crea con `ADMIN_EMAIL` y `ADMIN_PASSWORD` del `.env`.
+- **El usuario elige su contraseña:** el alta del examen no tiene contraseña. La API guarda una
+  aleatoria cifrada que nadie conoce y le envía al usuario un correo con un enlace para elegir la suya.
+  El administrador inicial se crea con `ADMIN_EMAIL` y `ADMIN_PASSWORD` del `.env`.
 - **Datos normalizados antes de validar:** el correo se guarda en minúsculas y el teléfono sin
   espacios (`+52 (314) 123-4567` → `+523141234567`), así no hay duplicados por formato.
+
+```js
+// Colección "password_reset_tokens": enlaces para elegir contraseña (recuperación y bienvenida)
+{
+  _id: ObjectId("66fb6a1e9c1d4b0012a3b4c9"),
+  email: "ana.lopez@tapterminal.com",          // índice único: un enlace vigente por correo
+  token: "$2y$12$…",                            // hash bcrypt; el token en claro solo va en el correo
+  created_at: ISODate("2026-10-02T18:30:00Z")  // índice TTL: MongoDB lo borra a los 60 minutos
+}
+```
+
+- **Lo administra el broker de contraseñas de Laravel** (`Password::sendResetLink` y `Password::reset`),
+  que funciona tal cual con laravel-mongodb: las fechas se guardan como `Date` de MongoDB y el índice TTL
+  borra los enlaces vencidos sin tareas programadas. Pedir otro enlace reemplaza al anterior.
 
 ## Bitácora de desarrollo
 Registro del avance del proyecto
@@ -179,3 +220,4 @@ Registro del avance del proyecto
 | TICK-18 | 2026-10-01 | Usuarios: CRUD completo, foto de perfil en GridFS, teléfono con lada, perfiles asignados y administrador inicial. | [#19](https://github.com/IanHMV/examen-tapterminal/pull/19) |
 | TICK-19 | 2026-10-02 | Inicio y cierre de sesión con Laravel Sanctum: tokens con vencimiento (TTL), límite de intentos, rutas protegidas y fotos con URL firmada. | [#20](https://github.com/IanHMV/examen-tapterminal/pull/20), [#21](https://github.com/IanHMV/examen-tapterminal/pull/21) |
 | TICK-20 | 2026-10-02 | Permisos por sección: middleware en la API (403), menú y guard en Angular según los perfiles del usuario. | [#22](https://github.com/IanHMV/examen-tapterminal/pull/22) |
+| TICK-21 | 2026-10-02 | Recuperación de contraseña y correo de bienvenida con enlace de un solo uso (60 min), Mailpit en desarrollo y Gmail en producción. | [#23](https://github.com/IanHMV/examen-tapterminal/pull/23) |

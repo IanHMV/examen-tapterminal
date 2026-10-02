@@ -5,7 +5,7 @@ import { Observable, catchError, finalize, map, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { NO_ACCESS_PATH, SECTION_LINKS } from '../constants/sections';
 import { ApiResource } from '../models/api.model';
-import { AuthUser, LoginResponse } from '../models/auth.model';
+import { AuthUser, LoginResponse, MessageResponse, ResetPasswordInput } from '../models/auth.model';
 
 /** Token guardado en el navegador para no pedir la contraseña en cada recarga. */
 interface StoredSession {
@@ -110,6 +110,20 @@ export class AuthService {
       map(() => undefined),
       finalize(() => this.clearSession()),
     );
+  }
+
+  /** Pide el enlace para elegir una contraseña nueva. La API responde lo mismo exista o no el correo. */
+  forgotPassword(email: string): Observable<string> {
+    return this.http
+      .post<MessageResponse>(`${this.baseUrl}/forgot-password`, { email })
+      .pipe(map((response) => response.message));
+  }
+
+  /** Guarda la contraseña nueva con el enlace del correo. La API cierra todas las sesiones de ese usuario. */
+  resetPassword(input: ResetPasswordInput): Observable<string> {
+    return this.http
+      .post<MessageResponse>(`${this.baseUrl}/reset-password`, input)
+      .pipe(map((response) => response.message));
   }
 
   /** Olvida la sesión local (por ejemplo, cuando la API responde 401). */

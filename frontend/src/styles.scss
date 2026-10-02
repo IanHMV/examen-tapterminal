@@ -66,6 +66,32 @@ body {
   gap: 1rem;
 }
 
+/* Pantallas sin sesión: inicio de sesión y recuperación de contraseña */
+.auth-card {
+  max-width: 24rem;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+
+  h2 {
+    margin-top: 0;
+  }
+}
+
+/* Botón a todo lo ancho; también sirve para enlaces con aspecto de botón */
+.auth-card__submit {
+  box-sizing: border-box;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-card__footer {
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
 /* Campo de formulario: etiqueta, control, ayuda y mensaje de error */
 .field {
   display: flex;

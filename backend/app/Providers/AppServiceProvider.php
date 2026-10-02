@@ -33,5 +33,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by(Str::lower((string) $request->input('email')) . '|' . $request->ip());
         });
+
+        // Recuperación de contraseña: máximo 5 solicitudes por minuto desde cada IP, cambie o no
+        // el correo, para que nadie use la API para mandar correos en masa. Además, el broker
+        // genera como máximo un enlace por minuto para cada correo ("throttle" en config/auth.php).
+        RateLimiter::for('password-reset', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
     }
 }
