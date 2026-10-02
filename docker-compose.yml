@@ -39,6 +39,13 @@ services:
       - mongo_data:/data/db                                   # los datos sobreviven a "docker compose down"
       - ./docker/mongo/init:/docker-entrypoint-initdb.d:ro    # scripts que corren solo la 1.ª vez
 
+  # MongoDB desechable para las pruebas (php artisan test): sin contraseña, sin puertos
+  # publicados y con los datos en memoria (tmpfs). Las pruebas nunca tocan la base de desarrollo.
+  mongo-test:
+    image: mongo:8.0
+    tmpfs:
+      - /data/db
+
   # Mailpit: atrapa los correos de desarrollo para verlos en http://localhost:8025.
   # Laravel le envía por SMTP a "mailpit:1025" dentro de la red de Docker; nada sale a internet.
   mailpit:
