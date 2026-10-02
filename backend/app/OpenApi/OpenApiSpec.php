@@ -18,7 +18,8 @@ use OpenApi\Attributes as OA;
     title: 'Examen TAP Terminal API',
     description: 'API REST del sistema de gestión de productos, usuarios y perfiles. Todas las rutas, salvo '
         . 'el healthcheck y el inicio de sesión, requieren un token: inicia sesión en POST /api/v1/auth/login '
-        . 'y pégalo en "Authorize".',
+        . 'y pégalo en "Authorize". Además, cada ruta exige la sección correspondiente en los perfiles del '
+        . 'usuario (Productos, Usuarios o Perfiles); sin ella responde 403.',
 )]
 #[OA\Server(url: L5_SWAGGER_CONST_HOST, description: 'Servidor actual')]
 #[OA\SecurityScheme(
@@ -93,6 +94,15 @@ use OpenApi\Attributes as OA;
     content: new OA\JsonContent(
         properties: [
             new OA\Property(property: 'message', type: 'string', example: 'No has iniciado sesión o tu sesión venció.'),
+        ]
+    )
+)]
+#[OA\Response(
+    response: 'Forbidden',
+    description: 'El usuario no tiene la sección en sus perfiles.',
+    content: new OA\JsonContent(
+        properties: [
+            new OA\Property(property: 'message', type: 'string', example: 'No tienes acceso a esta sección.'),
         ]
     )
 )]

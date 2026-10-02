@@ -68,12 +68,31 @@ class User extends Authenticatable
     }
 
     /**
+     * Secciones ya calculadas en esta petición: el middleware de permisos puede
+     * preguntar varias veces y los perfiles solo se consultan una.
+     *
+     * @var list<Section>|null
+     */
+    private ?array $sectionsCache = null;
+
+    /**
      * Secciones a las que el usuario tiene acceso: la suma de las de todos sus
      * perfiles, sin repetir y en el orden del catálogo.
      *
      * @return list<Section>
      */
     public function accessibleSections(): array
+    {
+        return $this->sectionsCache ??= $this->loadAccessibleSections();
+    }
+
+    public function hasSection(Section $section): bool
+    {
+        return in_array($section, $this->accessibleSections(), true);
+    }
+
+    /** @return list<Section> */
+    private function loadAccessibleSections(): array
     {
         $keys = $this->assignedProfiles()
             ->flatMap(fn (Profile $profile) => $profile->sections ?? [])

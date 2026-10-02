@@ -1,6 +1,12 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { sectionGuard } from './core/guards/section.guard';
+import { AuthService } from './core/services/auth.service';
+
+/** Lleva a la primera pantalla que el usuario tiene permitida. */
+const toHome = () => inject(AuthService).homeUrl();
 
 export const routes: Routes = [
   {
@@ -9,27 +15,35 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
-  // Todo lo demás requiere sesión: authGuard revisa cada pantalla hija.
+  // Todo lo demás requiere sesión (authGuard) y la sección de cada pantalla (sectionGuard).
   {
     path: '',
-    canActivateChild: [authGuard],
+    canActivateChild: [authGuard, sectionGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'productos' },
+      { path: '', pathMatch: 'full', redirectTo: toHome },
+      {
+        path: 'sin-acceso',
+        title: 'Sin acceso | Examen TAP Terminal',
+        loadComponent: () => import('./features/errors/no-access/no-access.component').then((m) => m.NoAccessComponent),
+      },
       {
         path: 'productos',
         title: 'Productos | Examen TAP Terminal',
+        data: { section: 'products' },
         loadComponent: () =>
           import('./features/products/product-list/product-list.component').then((m) => m.ProductListComponent),
       },
       {
         path: 'productos/nuevo',
         title: 'Nuevo producto | Examen TAP Terminal',
+        data: { section: 'products' },
         loadComponent: () =>
           import('./features/products/product-form/product-form.component').then((m) => m.ProductFormComponent),
       },
       {
         path: 'productos/:code',
         title: 'Detalle del producto | Examen TAP Terminal',
+        data: { section: 'products' },
         loadComponent: () =>
           import('./features/products/product-detail/product-detail.component').then((m) => m.ProductDetailComponent),
       },
@@ -37,51 +51,58 @@ export const routes: Routes = [
       {
         path: 'productos/:code/editar',
         title: 'Editar producto | Examen TAP Terminal',
+        data: { section: 'products' },
         loadComponent: () =>
           import('./features/products/product-form/product-form.component').then((m) => m.ProductFormComponent),
       },
       {
         path: 'perfiles',
         title: 'Perfiles | Examen TAP Terminal',
+        data: { section: 'profiles' },
         loadComponent: () =>
           import('./features/profiles/profile-list/profile-list.component').then((m) => m.ProfileListComponent),
       },
       {
         path: 'perfiles/nuevo',
         title: 'Nuevo perfil | Examen TAP Terminal',
+        data: { section: 'profiles' },
         loadComponent: () =>
           import('./features/profiles/profile-form/profile-form.component').then((m) => m.ProfileFormComponent),
       },
       {
         path: 'perfiles/:code/editar',
         title: 'Editar perfil | Examen TAP Terminal',
+        data: { section: 'profiles' },
         loadComponent: () =>
           import('./features/profiles/profile-form/profile-form.component').then((m) => m.ProfileFormComponent),
       },
       {
         path: 'usuarios',
         title: 'Usuarios | Examen TAP Terminal',
+        data: { section: 'users' },
         loadComponent: () => import('./features/users/user-list/user-list.component').then((m) => m.UserListComponent),
       },
       {
         path: 'usuarios/nuevo',
         title: 'Nuevo usuario | Examen TAP Terminal',
+        data: { section: 'users' },
         loadComponent: () => import('./features/users/user-form/user-form.component').then((m) => m.UserFormComponent),
       },
       {
         path: 'usuarios/:code',
         title: 'Detalle del usuario | Examen TAP Terminal',
+        data: { section: 'users' },
         loadComponent: () =>
           import('./features/users/user-detail/user-detail.component').then((m) => m.UserDetailComponent),
       },
       {
         path: 'usuarios/:code/editar',
         title: 'Editar usuario | Examen TAP Terminal',
+        data: { section: 'users' },
         loadComponent: () => import('./features/users/user-form/user-form.component').then((m) => m.UserFormComponent),
       },
     ],
   },
-  // Cualquier otra URL lleva al inicio (evita el error NG04002).
-  // Apunta a la ruta final: Angular no encadena un redirect detrás de otro.
-  { path: '**', redirectTo: 'productos' },
+  // Cualquier otra URL lleva a la primera pantalla permitida (evita el error NG04002).
+  { path: '**', redirectTo: toHome },
 ];

@@ -57,6 +57,16 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
   peticiones a la API. Si la API responde 401, se cierra la sesión y se vuelve al login recordando la
   pantalla (solo se aceptan rutas internas como destino).
 
+### Permisos por sección
+
+- **Requisito:** cada usuario solo entra a las secciones que tienen sus perfiles (la suma de todas).
+- **La API es la que protege:** un middleware (`section:products`, `section:users,profiles`) responde
+  403 en cada ruta si el usuario no tiene la sección, aunque alguien llame a la API sin pasar por Angular.
+- **Angular acompaña:** el menú muestra solo las secciones permitidas, un guard bloquea las pantallas
+  que no le tocan ("Sin acceso") y, si un administrador le cambia los perfiles mientras tiene la sesión
+  abierta, el siguiente 403 actualiza su menú.
+- **Nadie puede borrarse a sí mismo** (409): evita quedarse sin sesión o sin administrador.
+
 ### Modelo de datos en MongoDB
 
 Los nombres van en inglés en el código y en la base de datos (`products`, `price`), y en español en la interfaz.
@@ -168,3 +178,4 @@ Registro del avance del proyecto
 | TICK-17 | 2026-10-01 | Perfiles y secciones: CRUD completo, detalle en ventana modal, nombre único sin distinguir mayúsculas y estilos compartidos. | [#18](https://github.com/IanHMV/examen-tapterminal/pull/18) |
 | TICK-18 | 2026-10-01 | Usuarios: CRUD completo, foto de perfil en GridFS, teléfono con lada, perfiles asignados y administrador inicial. | [#19](https://github.com/IanHMV/examen-tapterminal/pull/19) |
 | TICK-19 | 2026-10-02 | Inicio y cierre de sesión con Laravel Sanctum: tokens con vencimiento (TTL), límite de intentos, rutas protegidas y fotos con URL firmada. | [#20](https://github.com/IanHMV/examen-tapterminal/pull/20), [#21](https://github.com/IanHMV/examen-tapterminal/pull/21) |
+| TICK-20 | 2026-10-02 | Permisos por sección: middleware en la API (403), menú y guard en Angular según los perfiles del usuario. | [#22](https://github.com/IanHMV/examen-tapterminal/pull/22) |

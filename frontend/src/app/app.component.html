@@ -3,9 +3,9 @@
   @if (auth.currentUser(); as user) {
     <div class="app-header__bar">
       <nav class="app-nav" aria-label="Principal">
-        <a routerLink="/productos" routerLinkActive="app-nav__link--active">Productos</a>
-        <a routerLink="/usuarios" routerLinkActive="app-nav__link--active">Usuarios</a>
-        <a routerLink="/perfiles" routerLinkActive="app-nav__link--active">Perfiles</a>
+        @for (link of menu(); track link.key) {
+          <a [routerLink]="link.path" routerLinkActive="app-nav__link--active">{{ link.label }}</a>
+        }
       </nav>
       <div class="app-session">
         <span class="app-session__user">{{ user.name }} · {{ user.email }}</span>

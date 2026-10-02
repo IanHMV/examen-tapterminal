@@ -74,6 +74,8 @@ class ProfileController extends Controller
                     ]
                 )
             ),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function index(): AnonymousResourceCollection
@@ -107,6 +109,8 @@ class ProfileController extends Controller
                     ]
                 )
             ),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function options(): JsonResponse
@@ -141,6 +145,8 @@ class ProfileController extends Controller
             ),
             new OA\Response(ref: '#/components/responses/Conflict', response: 409),
             new OA\Response(ref: '#/components/responses/ProfileValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function store(StoreProfileRequest $request): JsonResponse
@@ -170,6 +176,8 @@ class ProfileController extends Controller
                 )
             ),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function show(Profile $profile): ProfileResource
@@ -201,6 +209,8 @@ class ProfileController extends Controller
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
             new OA\Response(ref: '#/components/responses/Conflict', response: 409),
             new OA\Response(ref: '#/components/responses/ProfileValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function update(UpdateProfileRequest $request, Profile $profile): ProfileResource
@@ -234,6 +244,8 @@ class ProfileController extends Controller
                     ]
                 )
             ),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function destroy(Profile $profile): Response|JsonResponse

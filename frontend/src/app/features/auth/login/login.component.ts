@@ -6,15 +6,12 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../../core/services/auth.service';
 
-/** Pantalla a la que se va si no hay otra que recordar. */
-const HOME = '/productos';
-
 /**
  * Solo acepta rutas internas ("/productos/PRD-0001") como destino después del login.
- * Un enlace manipulado (?returnUrl=//otro-sitio.com) termina en el inicio.
+ * Un enlace manipulado (?returnUrl=//otro-sitio.com) termina en la pantalla de inicio.
  */
-function safeReturnUrl(url: string | null): string {
-  return url && url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/login') ? url : HOME;
+function safeReturnUrl(url: string | null, home: string): string {
+  return url && url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/login') ? url : home;
 }
 
 /**
@@ -57,7 +54,9 @@ export class LoginComponent {
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: () => {
-          this.router.navigateByUrl(safeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')));
+          // Si regresa a una pantalla que no le toca, el guard de secciones lo lleva a "Sin acceso".
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          this.router.navigateByUrl(safeReturnUrl(returnUrl, this.auth.homeUrl()));
         },
         error: (error: HttpErrorResponse) => {
           // La contraseña se borra siempre que falla, como en cualquier login.

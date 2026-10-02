@@ -41,10 +41,13 @@
                 <td class="table__actions">
                   <a [routerLink]="['/usuarios', user.code]">Ver</a>
                   <a [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
-                  <button type="button" class="link-button link-button--danger" [disabled]="deleting()"
-                    (click)="askDelete(user)">
-                    Eliminar
-                  </button>
+                  <!-- Nadie puede eliminarse a sí mismo (la API también lo impide). -->
+                  @if (user.code !== currentUserCode()) {
+                    <button type="button" class="link-button link-button--danger" [disabled]="deleting()"
+                      (click)="askDelete(user)">
+                      Eliminar
+                    </button>
+                  }
                 </td>
               </tr>
             } @empty {

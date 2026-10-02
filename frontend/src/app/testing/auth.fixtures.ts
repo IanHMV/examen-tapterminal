@@ -1,3 +1,6 @@
+import { computed, signal } from '@angular/core';
+
+import { NO_ACCESS_PATH, SECTION_LINKS } from '../core/constants/sections';
 import { AuthUser, LoginResponse } from '../core/models/auth.model';
 import { buildUser } from './user.fixtures';
 
@@ -28,4 +31,21 @@ export function buildLoginResponse(): LoginResponse {
 /** Guarda una sesión en localStorage como si el usuario hubiera iniciado sesión antes. */
 export function storeSession(token: string, expiresAt: Date): void {
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ token, expiresAt: expiresAt.toISOString() }));
+}
+
+/**
+ * AuthService simulado para pruebas de pantallas y guards: la prueba decide quién
+ * tiene sesión cambiando la señal "user". Reproduce la lógica de secciones del real.
+ */
+export function createAuthServiceStub() {
+  const user = signal<AuthUser | null>(null);
+  const hasSection = (key: string) => user()?.sections.some((section) => section.key === key) ?? false;
+
+  return {
+    user,
+    currentUser: user.asReadonly(),
+    isAuthenticated: computed(() => user() !== null),
+    hasSection,
+    homeUrl: () => SECTION_LINKS.find((link) => hasSection(link.key))?.path ?? NO_ACCESS_PATH,
+  };
 }

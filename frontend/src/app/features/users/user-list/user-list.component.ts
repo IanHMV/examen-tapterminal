@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, EMPTY, catchError, combineLatest, finalize, map, switchMap, tap } from 'rxjs';
@@ -8,6 +8,7 @@ import { BehaviorSubject, EMPTY, catchError, combineLatest, finalize, map, switc
 import { DATE_TIME_FORMAT } from '../../../core/constants/date-formats';
 import { Paginated } from '../../../core/models/api.model';
 import { User } from '../../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
@@ -32,6 +33,8 @@ export class UserListComponent {
   private readonly deleteDialog = viewChild.required(ConfirmDialogComponent);
 
   protected readonly dateTimeFormat = DATE_TIME_FORMAT;
+  private readonly auth = inject(AuthService);
+  protected readonly currentUserCode = computed(() => this.auth.currentUser()?.code);
   protected readonly state = signal<ListState>('loading');
   protected readonly result = signal<Paginated<User> | null>(null);
 
@@ -93,7 +96,10 @@ export class UserListComponent {
             return;
           }
 
-          this.deleteError.set('No se pudo eliminar el usuario. Intenta de nuevo.');
+          // 409: la API explica el motivo (por ejemplo, que es el propio usuario).
+          this.deleteError.set(
+            error.status === 409 ? error.error?.message : 'No se pudo eliminar el usuario. Intenta de nuevo.',
+          );
         },
       });
   }

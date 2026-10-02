@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Auth\AuthenticationException;
+use App\Http\Middleware\EnsureUserHasSection;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -26,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Una API no redirige a una página de login: sin token responde 401 en JSON.
         // (Por defecto, si la petición no pide JSON, Laravel busca la ruta "login" y falla con 500.)
         $middleware->redirectGuestsTo(fn () => null);
+
+        // Permisos por sección: ->middleware('section:products').
+        $middleware->alias(['section' => EnsureUserHasSection::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Una API nunca responde HTML: los errores bajo /api/* siempre se devuelven en JSON.

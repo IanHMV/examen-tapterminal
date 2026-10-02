@@ -12,7 +12,9 @@ export const authGuard: CanActivateFn = (_route, state) => {
   return inject(Router).createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
 };
 
-/** El login solo tiene sentido sin sesión: con sesión, lleva al inicio. */
+/** El login solo tiene sentido sin sesión: con sesión, lleva a su primera pantalla permitida. */
 export const guestGuard: CanActivateFn = () => {
-  return inject(AuthService).isAuthenticated() ? inject(Router).createUrlTree(['/productos']) : true;
+  const auth = inject(AuthService);
+
+  return auth.isAuthenticated() ? inject(Router).parseUrl(auth.homeUrl()) : true;
 };
