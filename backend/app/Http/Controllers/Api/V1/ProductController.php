@@ -173,4 +173,24 @@ class ProductController extends Controller
 
         return ProductResource::make($product);
     }
+
+    #[OA\Delete(
+        path: '/api/v1/products/{code}',
+        operationId: 'deleteProduct',
+        summary: 'Eliminar un producto',
+        description: 'Borra el producto de forma permanente. Su código no se vuelve a asignar.',
+        tags: ['Productos'],
+        parameters: [new OA\Parameter(ref: '#/components/parameters/ProductCode')],
+        responses: [
+            new OA\Response(response: 204, description: 'Producto eliminado (sin contenido).'),
+            new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+        ]
+    )]
+    public function destroy(Product $product): Response
+    {
+        // Borrado físico: el documento sale de MongoDB. El contador de códigos no retrocede.
+        $product->delete();
+
+        return response()->noContent();
+    }
 }

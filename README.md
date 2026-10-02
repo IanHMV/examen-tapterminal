@@ -64,6 +64,8 @@ Los nombres van en inglés en el código y en la base de datos (`products`, `pri
   simultáneas, "contar + 1" repitió 19 códigos y el contador ninguno. El índice único de `code` es
   una segunda barrera, y los códigos no se reutilizan aunque se borre un producto.
 - **`code` fuera de `$fillable`:** el cliente no puede asignarlo ni falsificarlo.
+- **Borrado físico:** eliminar quita el documento de MongoDB (`DELETE` → 204) y no se puede deshacer;
+  por eso la interfaz pide confirmación. El contador no retrocede: el código borrado no se reutiliza.
 - **Búsqueda por código:** el detalle usa el código en la URL (`/api/v1/products/PRD-0001`), que es
   único, inmutable y tiene índice. El listado ordena por `created_at` (también con índice).
 - **Precio en `Decimal128`:** decimal exacto, sin los errores de redondeo de `float`. La API lo
@@ -92,3 +94,4 @@ Registro del avance del proyecto
 | TICK-13 | 2026-10-01 | Alta de productos: `POST /api/v1/products`, validación en Laravel y Angular, y mensajes en español. | [#14](https://github.com/IanHMV/examen-tapterminal/pull/14) |
 | TICK-14 | 2026-10-01 | Listado paginado y detalle de productos (`GET /api/v1/products`, `GET /api/v1/products/{code}`), publicado en producción. | [#15](https://github.com/IanHMV/examen-tapterminal/pull/15) |
 | TICK-15 | 2026-10-01 | Edición de productos: `PUT /api/v1/products/{code}` y el mismo formulario del alta en modo edición. | [#16](https://github.com/IanHMV/examen-tapterminal/pull/16) |
+| TICK-16 | 2026-10-01 | Eliminación de productos: `DELETE /api/v1/products/{code}` y diálogo de confirmación reutilizable. | [#17](https://github.com/IanHMV/examen-tapterminal/pull/17) |

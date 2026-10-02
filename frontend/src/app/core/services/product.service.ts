@@ -24,7 +24,7 @@ export class ProductService {
 
   get(code: string): Observable<Product> {
     return this.http
-      .get<ApiResource<Product>>(`${this.baseUrl}/${encodeURIComponent(code)}`)
+      .get<ApiResource<Product>>(this.itemUrl(code))
       .pipe(map((response) => response.data));
   }
 
@@ -36,7 +36,17 @@ export class ProductService {
 
   update(code: string, input: ProductInput): Observable<Product> {
     return this.http
-      .put<ApiResource<Product>>(`${this.baseUrl}/${encodeURIComponent(code)}`, input)
+      .put<ApiResource<Product>>(this.itemUrl(code), input)
       .pipe(map((response) => response.data));
+  }
+
+  /** La API responde 204 (sin contenido). */
+  delete(code: string): Observable<void> {
+    return this.http.delete<void>(this.itemUrl(code));
+  }
+
+  /** URL de un producto. encodeURIComponent evita que el código altere la ruta. */
+  private itemUrl(code: string): string {
+    return `${this.baseUrl}/${encodeURIComponent(code)}`;
   }
 }

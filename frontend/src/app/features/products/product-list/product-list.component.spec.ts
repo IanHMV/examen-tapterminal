@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 
 import { environment } from '../../../../environments/environment';
@@ -85,5 +85,84 @@ describe('ProductListComponent', () => {
       .flush(null, { status: 500, statusText: 'Internal Server Error' });
 
     expect(screen().querySelector('[role="alert"]')?.textContent).toContain('No se pudo cargar el listado');
+  });
+
+  describe('eliminar', () => {
+    const second = buildProduct({ id: '6abf11b87c2123d8c1054973', code: 'PRD-0004', name: 'Botas dieléctricas' });
+
+    async function openListWith(url: string, page: ReturnType<typeof buildPage>): Promise<void> {
+      await harness.navigateByUrl(url, ProductListComponent);
+      httpTesting.expectOne((req) => req.url === productsUrl).flush(page);
+    }
+
+    /** Pulsa "Eliminar" en la primera fila y devuelve el diálogo de confirmación. */
+    function clickDeleteOnFirstRow(): HTMLDialogElement {
+      (screen().querySelector('.table__delete') as HTMLButtonElement).click();
+      return screen().querySelector('dialog') as HTMLDialogElement;
+    }
+
+    function confirmIn(dialog: HTMLDialogElement): void {
+      (dialog.querySelector('.button--danger') as HTMLButtonElement).click();
+    }
+
+    it('pide confirmación y, al confirmar, elimina y recarga la página', async () => {
+      await openListWith('/productos', buildPage([buildProduct(), second]));
+
+      const dialog = clickDeleteOnFirstRow();
+      expect(dialog.open).toBeTrue();
+      expect(dialog.textContent).toContain('PRD-0003');
+
+      confirmIn(dialog);
+
+      const deleteRequest = httpTesting.expectOne(`${productsUrl}/PRD-0003`);
+      expect(deleteRequest.request.method).toBe('DELETE');
+      deleteRequest.flush(null, { status: 204, statusText: 'No Content' });
+
+      const reload = httpTesting.expectOne((req) => req.url === productsUrl);
+      expect(reload.request.params.get('page')).toBe('1');
+      reload.flush(buildPage([second]));
+
+      expect(screen().querySelector('[role="status"]')?.textContent).toContain('Se eliminó el producto PRD-0003.');
+      expect(screen().querySelectorAll('tbody tr').length).toBe(1);
+    });
+
+    it('Cancelar cierra el diálogo y no elimina nada', async () => {
+      await openListWith('/productos', buildPage([buildProduct()]));
+
+      const dialog = clickDeleteOnFirstRow();
+      (dialog.querySelector('.button--secondary') as HTMLButtonElement).click();
+
+      expect(dialog.open).toBeFalse();
+      httpTesting.expectNone((req) => req.method === 'DELETE');
+    });
+
+    it('si elimina el último producto de la página, regresa a la anterior', async () => {
+      await openListWith(
+        '/productos?pagina=2',
+        buildPage([buildProduct()], { current_page: 2, last_page: 2, from: 11, to: 11, total: 11 }),
+      );
+
+      confirmIn(clickDeleteOnFirstRow());
+      httpTesting.expectOne(`${productsUrl}/PRD-0003`).flush(null, { status: 204, statusText: 'No Content' });
+      await harness.fixture.whenStable();
+
+      const reload = httpTesting.expectOne((req) => req.url === productsUrl);
+      expect(reload.request.params.get('page')).toBe('1');
+      reload.flush(buildPage([second]));
+
+      expect(TestBed.inject(Router).url).toBe('/productos?pagina=1');
+    });
+
+    it('muestra un error si la API no pudo eliminar', async () => {
+      await openListWith('/productos', buildPage([buildProduct()]));
+
+      confirmIn(clickDeleteOnFirstRow());
+      httpTesting
+        .expectOne(`${productsUrl}/PRD-0003`)
+        .flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(screen().querySelector('[role="alert"]')?.textContent).toContain('No se pudo eliminar el producto');
+      expect(screen().querySelectorAll('tbody tr').length).toBe(1);
+    });
   });
 });
