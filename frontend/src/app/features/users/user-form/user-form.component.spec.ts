@@ -132,6 +132,7 @@ describe('UserFormComponent', () => {
       request.flush({ data: buildUser() }, { status: 201, statusText: 'Created' });
 
       expect(screen().querySelector('.alert--success')?.textContent).toContain('Se creó el usuario');
+      expect(screen().querySelector('.alert--success')?.textContent).toContain('correo para que elija su contraseña');
       expect(screen().querySelector('.alert--success a')?.getAttribute('href')).toBe('/usuarios/USR-0002');
       expect(valueOf('name')).toBe('');
       expect(screen().querySelector('.user-form__photo img')).toBeNull();

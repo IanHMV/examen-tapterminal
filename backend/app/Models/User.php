@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Section;
 use App\Models\Concerns\HasSequentialCode;
+use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
@@ -52,6 +53,12 @@ class User extends Authenticatable
     public function getRouteKeyName(): string
     {
         return 'code';
+    }
+
+    /** Correo de recuperación en español y con el enlace a Angular (Laravel trae uno en inglés). */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     /**

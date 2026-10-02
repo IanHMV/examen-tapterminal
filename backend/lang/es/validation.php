@@ -10,6 +10,7 @@
 
 return [
     'array' => 'El campo :attribute debe ser una lista.',
+    'confirmed' => 'La confirmación de :attribute no coincide.',
     'decimal' => 'El campo :attribute debe tener :decimal decimales.',
     'distinct' => 'El campo :attribute tiene un valor duplicado.',
     'email' => 'El campo :attribute debe ser un correo electrónico válido.',
@@ -24,9 +25,14 @@ return [
     'min' => [
         'array' => 'El campo :attribute debe tener al menos :min elementos.',
         'numeric' => 'El campo :attribute debe ser al menos :min.',
+        'string' => 'El campo :attribute debe tener al menos :min caracteres.',
     ],
     'mimes' => 'El archivo :attribute debe ser de tipo: :values.',
     'numeric' => 'El campo :attribute debe ser un número.',
+    'password' => [
+        'letters' => 'El campo :attribute debe contener al menos una letra.',
+        'numbers' => 'El campo :attribute debe contener al menos un número.',
+    ],
     'regex' => 'El formato de :attribute no es válido.',
     'required' => 'El campo :attribute es obligatorio.',
     'string' => 'El campo :attribute debe ser texto.',
@@ -63,6 +69,7 @@ return [
         'brand' => 'marca',
         'email' => 'correo',
         'name' => 'nombre',
+        'password' => 'contraseña',
         'phone' => 'teléfono',
         'photo' => 'foto',
         'price' => 'precio',
@@ -70,5 +77,6 @@ return [
         'profile_codes.*' => 'perfil',
         'sections' => 'secciones',
         'sections.*' => 'sección',
+        'token' => 'enlace',
     ],
 ];

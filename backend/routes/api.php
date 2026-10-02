@@ -24,6 +24,12 @@ Route::prefix('v1')->name('v1.')->group(function () {
     // Máximo 5 intentos por minuto para cada correo (ver AppServiceProvider).
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth.login');
 
+    // Recuperación de contraseña: máximo 5 solicitudes por minuto desde cada IP (ver AppServiceProvider).
+    Route::middleware('throttle:password-reset')->group(function () {
+        Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->name('auth.forgot-password');
+        Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('auth.reset-password');
+    });
+
     // <img> no envía el token: la foto se protege con una URL firmada y temporal ("signed").
     Route::get('/users/{user}/photo', [UserController::class, 'photo'])->middleware('signed')->name('users.photo.show');
 

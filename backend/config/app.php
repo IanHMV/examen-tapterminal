@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // Dirección de Angular, para los enlaces de los correos. En producción Angular y la API
+    // comparten dirección (APP_URL); en desarrollo Angular corre en http://localhost:4200.
+    'frontend_url' => env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

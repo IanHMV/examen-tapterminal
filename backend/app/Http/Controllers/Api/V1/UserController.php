@@ -9,11 +9,13 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Notifications\WelcomeNotification;
 use App\Support\PhotoStorage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -102,8 +104,9 @@ class UserController extends Controller
         path: '/api/v1/users',
         operationId: 'storeUser',
         summary: 'Crear un usuario',
-        description: 'Registra un usuario con su foto (multipart/form-data). El código, la fecha y una contraseña '
-            . 'aleatoria los genera el sistema; el usuario recibe sus credenciales por correo.',
+        description: 'Registra un usuario con su foto (multipart/form-data). El código y la fecha los genera el '
+            . 'sistema. El usuario recibe un correo de bienvenida con su usuario y un enlace para elegir su contraseña '
+            . '(vence en 60 minutos; después puede pedir otro en POST /api/v1/auth/forgot-password).',
         tags: ['Usuarios'],
         requestBody: new OA\RequestBody(
             required: true,
@@ -146,8 +149,8 @@ class UserController extends Controller
     {
         $user = new User($request->safe()->except('photo'));
 
-        // El alta del examen no tiene contraseña: se genera una aleatoria que nadie ve
-        // (se guarda cifrada). El usuario obtiene sus credenciales por correo (TICK-21).
+        // El alta del examen no tiene contraseña: se guarda una aleatoria (cifrada) que nadie
+        // conoce, hasta que el usuario elige la suya con el enlace del correo de bienvenida.
         $user->password = Str::password(16);
         $user->photo_id = $this->photos->store($request->file('photo'));
 
@@ -159,6 +162,10 @@ class UserController extends Controller
 
             throw $exception;
         }
+
+        // Se envía después de responder: si el servidor de correo falla o tarda, el usuario
+        // ya quedó creado y el error se registra en el log. Siempre puede pedir otro enlace.
+        defer(fn () => $user->notify(new WelcomeNotification(Password::createToken($user))));
 
         return UserDetailResource::make($user)
             ->response()

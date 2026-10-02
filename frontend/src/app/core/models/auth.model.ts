@@ -15,3 +15,17 @@ export interface LoginResponse {
   expires_at: string;
   user: AuthUser;
 }
+
+/** Cuerpo de POST /api/v1/auth/reset-password (esquema ResetPasswordInput en Swagger). */
+export interface ResetPasswordInput {
+  /** Lo que va después de "#" en el enlace del correo. */
+  token: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+
+/** Respuesta que solo trae un mensaje para mostrar. */
+export interface MessageResponse {
+  message: string;
+}
