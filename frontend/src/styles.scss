@@ -103,7 +103,8 @@ body {
     font-weight: 600;
   }
 
-  input:not([type='checkbox']) {
+  input:not([type='checkbox']),
+  select {
     padding: 0.5rem;
     font: inherit;
     border: 1px solid #d1d5db;

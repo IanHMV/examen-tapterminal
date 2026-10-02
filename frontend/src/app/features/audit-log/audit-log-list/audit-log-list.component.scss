@@ -1,0 +1,11 @@
+/* Filtros en una sola fila (se acomodan en varias si no caben) */
+.audit-log-list__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0 1rem;
+
+  .form-actions {
+    margin-bottom: 1rem;
+  }
+}

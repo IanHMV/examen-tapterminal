@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Section;
+use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasSequentialCode;
 use MongoDB\Laravel\Eloquent\Model;
 
@@ -19,6 +20,7 @@ use MongoDB\Laravel\Eloquent\Model;
  */
 class Profile extends Model
 {
+    use Auditable;
     use HasSequentialCode;
 
     protected $table = 'profiles';
@@ -45,6 +47,12 @@ class Profile extends Model
             Section::cases(),
             fn (Section $section) => in_array($section->value, $keys, true),
         ));
+    }
+
+    /** Campos que guarda la bitácora en cada cambio. */
+    protected function auditedAttributes(): array
+    {
+        return ['name', 'sections'];
     }
 
     /** Prefijo del código autogenerado: PRF-0001. */

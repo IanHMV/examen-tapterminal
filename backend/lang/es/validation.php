@@ -17,6 +17,7 @@ return [
     'enum' => 'El valor de :attribute no es válido.',
     'exists' => 'El valor de :attribute no existe.',
     'image' => 'El archivo :attribute debe ser una imagen.',
+    'in' => 'El valor de :attribute no es válido.',
     'max' => [
         'file' => 'El archivo :attribute no debe pesar más de :max kilobytes.',
         'numeric' => 'El campo :attribute no debe ser mayor que :max.',
@@ -67,7 +68,9 @@ return [
     // Nombre de cada campo en los mensajes ("name" → "nombre").
     'attributes' => [
         'brand' => 'marca',
+        'code' => 'código',
         'email' => 'correo',
+        'entity' => 'entidad',
         'name' => 'nombre',
         'password' => 'contraseña',
         'phone' => 'teléfono',

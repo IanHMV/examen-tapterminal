@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
@@ -296,6 +297,9 @@ class AuthController extends Controller
         $status = Password::reset(
             $request->safe()->only(['email', 'password', 'password_confirmation', 'token']),
             function (User $user, string $password) {
+                // El enlace demuestra quién es: la bitácora lo registra como autor del cambio.
+                Auth::setUser($user);
+
                 $user->password = $password;
                 $user->save();
 

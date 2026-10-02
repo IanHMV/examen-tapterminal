@@ -1,0 +1,78 @@
+<section class="audit-log-list">
+  <header class="page-header">
+    <h2>Bitácora</h2>
+  </header>
+  <p class="form-page__hint">
+    Cada alta, edición y eliminación de productos, perfiles y usuarios queda registrada con el dato anterior y el actual.
+  </p>
+
+  <form class="audit-log-list__filters" [formGroup]="filters" (ngSubmit)="search()">
+    <div class="field">
+      <label for="entity">Entidad</label>
+      <select id="entity" formControlName="entity">
+        <option value="">Todas</option>
+        @for (option of entityOptions; track option.key) {
+          <option [value]="option.key">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="code">Código</label>
+      <input id="code" type="search" formControlName="code" placeholder="PRD-0001" maxlength="20" />
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="button">Filtrar</button>
+      <button type="button" class="button button--secondary" (click)="clear()">Limpiar</button>
+    </div>
+  </form>
+
+  @switch (state()) {
+    @case ('loading') {
+      <p>Cargando la bitácora…</p>
+    }
+    @case ('error') {
+      <p class="alert alert--error" role="alert">No se pudo cargar la bitácora. Intenta de nuevo.</p>
+    }
+    @case ('ready') {
+      @if (result(); as page) {
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Entidad</th>
+              <th scope="col">Código</th>
+              <th scope="col">Acción</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of page.data; track log.id) {
+              <tr>
+                <td>{{ log.created_at | date: dateTimeFormat }}</td>
+                <td>{{ entityLabels[log.entity] }}</td>
+                <td>{{ log.entity_code }}</td>
+                <td>{{ actionLabels[log.action] }}</td>
+                <td>{{ log.user ? log.user.name + ' (' + log.user.code + ')' : 'Sistema' }}</td>
+                <td class="table__actions">
+                  <button type="button" class="link-button" (click)="showDetail(log)">Ver cambios</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">No hay cambios registrados con estos filtros.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <app-pagination [page]="page" itemsLabel="registros" />
+      }
+    }
+  }
+
+  <!-- Fuera del @switch: siempre existe, aunque la tabla se esté recargando. -->
+  <app-audit-log-detail-dialog [log]="selected()" />
+</section>

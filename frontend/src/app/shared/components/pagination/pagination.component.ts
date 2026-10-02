@@ -5,7 +5,8 @@ import { Paginated } from '../../../core/models/api.model';
 
 /**
  * Navegación entre páginas de un listado. Cambia ?pagina= en la URL de la
- * pantalla actual; la pantalla escucha la URL y pide la página a la API.
+ * pantalla actual (y conserva los demás parámetros, como los filtros); la
+ * pantalla escucha la URL y pide la página a la API.
  */
 @Component({
   selector: 'app-pagination',

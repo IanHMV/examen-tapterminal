@@ -94,6 +94,27 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
   abierta, el siguiente 403 actualiza su menú.
 - **Nadie puede borrarse a sí mismo** (409): evita quedarse sin sesión o sin administrador.
 
+### Bitácora del sistema
+
+- **Requisito:** guardar el dato anterior para compararlo con el actual. Cada alta, edición y eliminación
+  de productos, perfiles y usuarios guarda el antes, el después y la lista de campos que cambiaron.
+- **Automática:** el trait `App\Models\Concerns\Auditable` escucha los eventos de Eloquent (`created`,
+  `updated`, `deleted`). Ningún controlador tiene que acordarse de escribir en la bitácora, y cada modelo
+  declara qué campos se guardan (`auditedAttributes()`). En el evento `updated` Laravel todavía conserva
+  el valor anterior (`getOriginal()`), así que no hace falta otra consulta. Guardar sin cambios no se registra.
+- **Nunca guarda contraseñas:** de los campos ocultos del modelo (`$hidden`) solo se anota que cambiaron;
+  ni la contraseña ni su hash llegan a la bitácora.
+- **Quien hace las consultas** el registro guarda una copia del código y el nombre del usuario y la IP. Si
+  después ese usuario cambia de nombre o se borra, la bitácora sigue diciendo quién fue. Los datos iniciales
+  (`db:seed`) aparecen como "Sistema", y quien cambia su contraseña con el enlace del correo, como autor.
+- **Solo lectura:** la API solo ofrece `GET /api/v1/audit-logs` (sección Bitácora) y el modelo cancela
+  cualquier intento de editar o borrar un registro. No tiene índice TTL: el historial se conserva completo.
+- **Limitación conocida:** MongoDB sin réplicas no admite transacciones entre documentos, así que el
+  registro se escribe justo después del cambio, no en la misma operación. Las actualizaciones masivas
+  (`Model::where(...)->update()`) no disparan eventos; la API no las usa.
+- **En Angular:** la pantalla "Bitácora" filtra por entidad y código (los filtros viven en la URL, igual
+  que la página) y una ventana modal compara campo por campo el antes y el después, resaltando lo que cambió.
+
 ### Modelo de datos en MongoDB
 
 Los nombres van en inglés en el código y en la base de datos (`products`, `price`), y en español en la interfaz.
@@ -194,6 +215,29 @@ Los nombres van en inglés en el código y en la base de datos (`products`, `pri
   que funciona tal cual con laravel-mongodb: las fechas se guardan como `Date` de MongoDB y el índice TTL
   borra los enlaces vencidos sin tareas programadas. Pedir otro enlace reemplaza al anterior.
 
+```js
+// Colección "audit_logs": bitácora de cambios
+{
+  _id: ObjectId("66fd1a2b9c1d4b0012a3b4d0"),
+  entity: "products",                                   // products, profiles o users
+  entity_code: "PRD-0001",
+  action: "updated",                                    // created, updated o deleted
+  before: { name: "Casco de seguridad tipo I", brand: "3M", price: "289.00" },  // null en un alta
+  after:  { name: "Casco de seguridad tipo I", brand: "3M", price: "310.00" },  // null en una eliminación
+  changed_fields: ["price"],
+  user: { code: "USR-0001", name: "Administrador" },    // copia; null = el sistema
+  ip: "203.0.113.7",
+  created_at: ISODate("2026-10-02T18:30:00Z")
+}
+```
+
+- **Documentos embebidos:** el antes y el después son subdocumentos con la forma de cada entidad, algo
+  natural en MongoDB. En SQL harían falta una fila por campo o columnas de texto con JSON.
+- **Índices para cada consulta de la pantalla:** `created_at` (listado completo, del más reciente al más
+  antiguo), `{ entity, created_at }` (filtro por entidad) y `{ entity_code, created_at }` (historial de un
+  registro). El código lleva el prefijo de su entidad (`PRD-`, `PRF-`, `USR-`), así que solo él ya
+  identifica al registro.
+
 ## Bitácora de desarrollo
 Registro del avance del proyecto
 > No confundir con la **bitácora de cambios del sistema** (historial de datos anterior vs. actual)
@@ -221,3 +265,4 @@ Registro del avance del proyecto
 | TICK-19 | 2026-10-02 | Inicio y cierre de sesión con Laravel Sanctum: tokens con vencimiento (TTL), límite de intentos, rutas protegidas y fotos con URL firmada. | [#20](https://github.com/IanHMV/examen-tapterminal/pull/20), [#21](https://github.com/IanHMV/examen-tapterminal/pull/21) |
 | TICK-20 | 2026-10-02 | Permisos por sección: middleware en la API (403), menú y guard en Angular según los perfiles del usuario. | [#22](https://github.com/IanHMV/examen-tapterminal/pull/22) |
 | TICK-21 | 2026-10-02 | Recuperación de contraseña y correo de bienvenida con enlace de un solo uso (60 min), Mailpit en desarrollo y Gmail en producción. | [#23](https://github.com/IanHMV/examen-tapterminal/pull/23) |
+| TICK-22 | 2026-10-02 | Bitácora del sistema: cada alta, edición y eliminación guarda el dato anterior y el actual; consulta con filtros y comparación campo por campo. | [#24](https://github.com/IanHMV/examen-tapterminal/pull/24) |

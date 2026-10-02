@@ -1,7 +1,7 @@
 @let current = page();
 <nav class="pagination" aria-label="Paginación">
   @if (current.links.prev) {
-    <a routerLink="." [queryParams]="{ pagina: current.meta.current_page - 1 }">← Anterior</a>
+    <a routerLink="." [queryParams]="{ pagina: current.meta.current_page - 1 }" queryParamsHandling="merge">← Anterior</a>
   }
   <span>
     @if (current.meta.from) {
@@ -10,6 +10,6 @@
     Página {{ current.meta.current_page }} de {{ current.meta.last_page }}
   </span>
   @if (current.links.next) {
-    <a routerLink="." [queryParams]="{ pagina: current.meta.current_page + 1 }">Siguiente →</a>
+    <a routerLink="." [queryParams]="{ pagina: current.meta.current_page + 1 }" queryParamsHandling="merge">Siguiente →</a>
   }
 </nav>

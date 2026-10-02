@@ -19,7 +19,7 @@ use OpenApi\Attributes as OA;
     description: 'API REST del sistema de gestión de productos, usuarios y perfiles. Todas las rutas, salvo '
         . 'el healthcheck, el inicio de sesión y la recuperación de contraseña, requieren un token: inicia sesión '
         . 'en POST /api/v1/auth/login y pégalo en "Authorize". Además, cada ruta exige la sección correspondiente '
-        . 'en los perfiles del usuario (Productos, Usuarios o Perfiles); sin ella responde 403.',
+        . 'en los perfiles del usuario (Productos, Usuarios, Perfiles o Bitácora); sin ella responde 403.',
 )]
 #[OA\Server(url: L5_SWAGGER_CONST_HOST, description: 'Servidor actual')]
 #[OA\SecurityScheme(
@@ -34,6 +34,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Productos', description: 'Catálogo de productos')]
 #[OA\Tag(name: 'Perfiles', description: 'Perfiles de usuario y las secciones a las que dan acceso')]
 #[OA\Tag(name: 'Usuarios', description: 'Usuarios, su foto de perfil y sus perfiles')]
+#[OA\Tag(name: 'Bitácora', description: 'Historial de cambios con el dato anterior y el actual (solo lectura)')]
 #[OA\Schema(
     schema: 'ValidationError',
     description: 'Respuesta 422 de Laravel: un mensaje general y los errores de cada campo.',
