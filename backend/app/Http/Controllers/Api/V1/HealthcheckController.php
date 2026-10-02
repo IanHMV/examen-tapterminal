@@ -19,7 +19,13 @@ use Throwable;
     schema: 'Healthcheck',
     required: ['status', 'service', 'checks', 'timestamp'],
     properties: [
-        new OA\Property(property: 'status', type: 'string', enum: ['ok', 'degraded'], example: 'ok'),
+        new OA\Property(
+            property: 'status',
+            type: 'string',
+            enum: ['ok', 'degraded'],
+            example: 'ok',
+            description: 'degraded: la API funciona, pero la base de datos no responde.'
+        ),
         new OA\Property(property: 'service', type: 'string', example: 'Examen TAP Terminal'),
         new OA\Property(
             property: 'checks',
