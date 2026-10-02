@@ -162,6 +162,40 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 - **Cada prueba se comprobó con una mutación:** se rompió a propósito el código que protege
   (por ejemplo, quitar el arreglo del 401) y se verificó que al menos una prueba fallara.
 
+### Integración y despliegue continuos (GitHub Actions)
+
+```text
+PR ─────────► CI: API (Pint, Swagger, PHPUnit + MongoDB) · Angular (pruebas, build) · imágenes de producción
+   └────────► Título del PR (Conventional Commits)
+fusión a main ─► CI ─(si pasa)─► Despliegue: SSH al VPS → scripts/deploy.sh → verificación pública
+```
+
+- **CI en cada PR y en cada fusión a `main`** (`.github/workflows/ci.yml`): las mismas versiones que Docker
+  (PHP 8.2 con la extensión mongodb 2.5.3, Node 22) y un MongoDB de servicio para las pruebas. También
+  construye las imágenes de producción: un error en un Dockerfile aparece en el PR, no en el servidor.
+- **Título del PR** (`pr-title.yml`): al fusionar con squash, el título se convierte en el commit de `main`,
+  así que debe seguir Conventional Commits. El título se lee desde una variable de entorno y no dentro del
+  script, para que un título malicioso no pueda ejecutar comandos.
+- **Despliegue automático** (`deploy.yml`): cuando el CI de `main` termina bien (o a mano, con "Run workflow"),
+  se conecta al VPS por SSH y ejecuta `scripts/deploy.sh`. Ese script:
+  - trae el código solo si avanza en línea recta (si alguien cambió archivos en el servidor, se detiene);
+  - construye las imágenes de una en una, porque el VPS tiene 2 GB de RAM;
+  - reinicia los contenedores, aplica migraciones y datos iniciales, y borra las imágenes viejas.
+
+  Al final, el workflow comprueba el healthcheck público y que la API responda 401 sin token.
+- **Una llave que solo sirve para desplegar:** en `authorized_keys` la llave de GitHub tiene un comando
+  forzado y `restrict`, así que solo puede ejecutar el script (sin terminal ni túneles). La huella del
+  servidor está fijada en `VPS_KNOWN_HOSTS`, así que SSH no se conecta a un servidor que se haga pasar por el VPS.
+- **Configuración (una sola vez):**
+  1. En el VPS: `ssh-keygen -t ed25519 -N "" -C github-actions -f ~/.ssh/github_deploy`.
+  2. Agrega a `~/.ssh/authorized_keys` la línea
+     `restrict,command="bash /home/ian/apps/examen-tapterminal/scripts/deploy.sh" ` seguida del contenido de
+     `~/.ssh/github_deploy.pub`.
+  3. En GitHub (Settings → Secrets and variables → Actions) crea `VPS_HOST` (IP del VPS), `VPS_USER` (`ian`),
+     `VPS_SSH_KEY` (contenido de `~/.ssh/github_deploy`) y `VPS_KNOWN_HOSTS`
+     (salida de `awk -v ip=IP_DEL_VPS '{print ip, $1, $2}' /etc/ssh/ssh_host_ed25519_key.pub`).
+  4. Borra la llave privada del VPS (`rm ~/.ssh/github_deploy`): solo GitHub la necesita.
+
 ### Modelo de datos en MongoDB
 
 Los nombres van en inglés en el código y en la base de datos (`products`, `price`), y en español en la interfaz.
@@ -315,3 +349,4 @@ Registro del avance del proyecto
 | TICK-22 | 2026-10-02 | Bitácora del sistema: cada alta, edición y eliminación guarda el dato anterior y el actual; consulta con filtros y comparación campo por campo. | [#24](https://github.com/IanHMV/examen-tapterminal/pull/24) |
 | TICK-23 | 2026-10-02 | Exportación de cada listado a Excel y PDF desde la API (todos los registros, fechas DD/MM/YYYY HH:MM en la hora local) y botones en Angular. | [#25](https://github.com/IanHMV/examen-tapterminal/pull/25) |
 | TICK-24 | 2026-10-02 | Pruebas de la API con PHPUnit contra un MongoDB desechable: reglas del examen, seguridad y regresiones. | [#26](https://github.com/IanHMV/examen-tapterminal/pull/26) |
+| TICK-25 | 2026-10-02 | CI/CD con GitHub Actions: pruebas, PSR-12, Swagger e imágenes en cada PR, validación del título y despliegue automático al VPS. | [#27](https://github.com/IanHMV/examen-tapterminal/pull/27) |

@@ -1,0 +1,118 @@
+# Integración continua: se ejecuta en cada PR y en cada fusión a main.
+# Si algún trabajo falla, el PR no debería fusionarse (protección de la rama main).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Solo lectura del repositorio: ningún trabajo necesita escribir.
+permissions:
+  contents: read
+
+# Un PR con commits nuevos cancela la ejecución anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: API (Pint, Swagger y PHPUnit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # MongoDB desechable para las pruebas, como el servicio mongo-test de docker-compose.yml.
+    services:
+      mongo:
+        image: mongo:8.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Tiene prioridad sobre el valor de phpunit.xml (mongodb://mongo-test:27017).
+      MONGODB_URI: mongodb://localhost:27017
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Las mismas versiones que la imagen de Docker: PHP 8.2 y la extensión mongodb 2.5.3.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mongodb-2.5.3, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Carpeta de caché de Composer
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Dependencias
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Configuración de pruebas
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: PSR-12 (Pint)
+        run: vendor/bin/pint --test --preset=psr12 app routes lang tests bootstrap/app.php bootstrap/providers.php config database
+
+      # Detecta anotaciones de Swagger rotas (una referencia a un esquema que no existe, por ejemplo).
+      - name: Documentación OpenAPI
+        run: php artisan l5-swagger:generate
+
+      - name: Pruebas (PHPUnit)
+        run: php artisan test
+
+  frontend:
+    name: Angular (pruebas y build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Node 22, como la imagen de producción (docker/web/Dockerfile).
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Dependencias
+        run: npm ci
+
+      - name: Pruebas (Jasmine + Karma)
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build de producción
+        run: npm run build
+
+  docker:
+    name: Imágenes de producción
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Las mismas imágenes que construye el VPS: si fallan aquí, no llegan a producción.
+      - name: API (PHP-FPM)
+        run: docker build --file docker/php/Dockerfile.prod --tag examen-tapterminal-api .
+
+      - name: Web (Nginx + Angular)
+        run: docker build --file docker/web/Dockerfile --tag examen-tapterminal-web .
