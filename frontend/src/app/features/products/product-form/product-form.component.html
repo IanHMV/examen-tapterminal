@@ -4,7 +4,7 @@
 
   @if (createdProduct(); as product) {
   <p class="alert alert--success" role="status">
-    Se creó el producto <strong>{{ product.code }}</strong>: {{ product.name }},
+    Se creó el producto <a [routerLink]="['/productos', product.code]"><strong>{{ product.code }}</strong></a>: {{ product.name }},
     {{ product.price | currency: 'MXN' : 'symbol-narrow' }}, el {{ product.created_at | date: dateTimeFormat }}.
   </p>
   }
@@ -73,7 +73,7 @@
       }
     </div>
 
-    <button type="submit" [disabled]="saving()">
+    <button type="submit" class="button" [disabled]="saving()">
       {{ saving() ? 'Guardando…' : 'Guardar producto' }}
     </button>
   </form>

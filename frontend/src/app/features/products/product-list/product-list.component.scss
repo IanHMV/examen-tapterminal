@@ -1,0 +1,39 @@
+.product-list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  th {
+    background: #f9fafb;
+  }
+
+  .table__number {
+    text-align: right;
+  }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: #4b5563;
+}

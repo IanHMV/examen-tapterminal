@@ -1,0 +1,32 @@
+<section class="product-detail">
+  <a routerLink="/productos">← Volver al listado</a>
+
+  @switch (state()) {
+    @case ('loading') {
+      <p>Cargando producto…</p>
+    }
+    @case ('not-found') {
+      <p class="alert alert--error" role="alert">El producto no existe.</p>
+    }
+    @case ('error') {
+      <p class="alert alert--error" role="alert">No se pudo cargar el producto. Intenta de nuevo.</p>
+    }
+    @case ('ready') {
+      @if (product(); as product) {
+        <h2>{{ product.name }}</h2>
+        <dl class="details">
+          <dt>Código</dt>
+          <dd>{{ product.code }}</dd>
+          <dt>Marca</dt>
+          <dd>{{ product.brand }}</dd>
+          <dt>Precio</dt>
+          <dd>{{ product.price | currency: 'MXN' : 'symbol-narrow' }}</dd>
+          <dt>Fecha de creación</dt>
+          <dd>{{ product.created_at | date: dateTimeFormat }}</dd>
+          <dt>Última modificación</dt>
+          <dd>{{ product.updated_at | date: dateTimeFormat }}</dd>
+        </dl>
+      }
+    }
+  }
+</section>

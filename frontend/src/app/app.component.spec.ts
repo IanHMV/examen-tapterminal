@@ -25,4 +25,12 @@ describe('AppComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('Examen TAP Terminal');
   });
+
+  it('should link to the product list in the menu', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    const link = (fixture.nativeElement as HTMLElement).querySelector('.app-nav a');
+    expect(link?.textContent?.trim()).toBe('Productos');
+    expect(link?.getAttribute('href')).toBe('/productos');
+  });
 });

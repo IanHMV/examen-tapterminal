@@ -2,6 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { DATE_TIME_FORMAT } from '../../../core/constants/date-formats';
@@ -21,7 +22,7 @@ const PRICE_FORMAT = /^\d+(\.\d{1,2})?$/;
  */
 @Component({
   selector: 'app-product-form',
-  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe],
+  imports: [ReactiveFormsModule, RouterLink, CurrencyPipe, DatePipe],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
 })

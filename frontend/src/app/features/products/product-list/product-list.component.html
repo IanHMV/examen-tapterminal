@@ -1,0 +1,60 @@
+<section class="product-list">
+  <header class="product-list__header">
+    <h2>Productos</h2>
+    <a class="button" routerLink="/productos/nuevo">Nuevo producto</a>
+  </header>
+
+  @switch (state()) {
+    @case ('loading') {
+      <p>Cargando productos…</p>
+    }
+    @case ('error') {
+      <p class="alert alert--error" role="alert">No se pudo cargar el listado. Intenta de nuevo.</p>
+    }
+    @case ('ready') {
+      @if (result(); as page) {
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Nombre</th>
+              <th scope="col" class="table__number">Precio</th>
+              <th scope="col">Fecha de creación</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (product of page.data; track product.id) {
+              <tr>
+                <td>{{ product.code }}</td>
+                <td>{{ product.name }}</td>
+                <td class="table__number">{{ product.price | currency: 'MXN' : 'symbol-narrow' }}</td>
+                <td>{{ product.created_at | date: dateTimeFormat }}</td>
+                <td><a [routerLink]="['/productos', product.code]">Ver</a></td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">No hay productos en esta página.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <nav class="pagination" aria-label="Paginación">
+          @if (page.links.prev) {
+            <a routerLink="." [queryParams]="{ pagina: page.meta.current_page - 1 }">← Anterior</a>
+          }
+          <span>
+            @if (page.meta.from) {
+              {{ page.meta.from }}–{{ page.meta.to }} de {{ page.meta.total }} productos ·
+            }
+            Página {{ page.meta.current_page }} de {{ page.meta.last_page }}
+          </span>
+          @if (page.links.next) {
+            <a routerLink="." [queryParams]="{ pagina: page.meta.current_page + 1 }">Siguiente →</a>
+          }
+        </nav>
+      }
+    }
+  }
+</section>
