@@ -41,6 +41,33 @@ Composer 2.10 bloquea versiones con avisos conocidos, así que se ignoran **solo
 afectan a la última 11.x (`backend/composer.json` → `config.policy.advisories.ignore-id`).
 Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 
+### Modelo de datos en MongoDB
+
+Los nombres van en inglés en el código y en la base de datos (`products`, `price`), y en español en la interfaz.
+
+```js
+// Colección "products"
+{
+  _id: ObjectId("66fb6a1e9c1d4b0012a3b4c5"),
+  code: "PRD-0001",                 // índice único
+  name: "Casco de seguridad tipo I",
+  brand: "3M",
+  price: Decimal128("289.00"),
+  created_at: ISODate("2026-10-01T18:30:00Z"),   // índice para ordenar el listado
+  updated_at: ISODate("2026-10-01T18:30:00Z")
+}
+```
+
+- **Código con contador atómico.** La colección `counters` guarda un contador por entidad
+  (`{ _id: "products", value: 10 }`) y cada alta lo incrementa con `findOneAndUpdate` + `$inc`,
+  que es atómico: dos altas simultáneas nunca reciben el mismo código. En una prueba con 20 altas
+  simultáneas, "contar + 1" repitió 19 códigos y el contador ninguno. El índice único de `code` es
+  una segunda barrera, y los códigos no se reutilizan aunque se borre un producto.
+- **`code` fuera de `$fillable`:** el cliente no puede asignarlo ni falsificarlo.
+- **Precio en `Decimal128`:** decimal exacto, sin los errores de redondeo de `float`. La API lo
+  entrega como texto con 2 decimales (`"289.00"`).
+- **"Precio máximo 3 dígitos"** se interpreta como hasta 3 dígitos enteros y 2 decimales
+  (de 0.01 a 999.99). Laravel (`StoreProductRequest`) y Angular aplican la misma regla.
 
 ## Bitácora de desarrollo
 Registro del avance del proyecto
@@ -60,3 +87,4 @@ Registro del avance del proyecto
 | TICK-10 | 2026-10-01 | Aplicación servida bajo la subruta `/examen-tapterminal` detrás de proxies HTTPS. | [#11](https://github.com/IanHMV/examen-tapterminal/pull/11) |
 | TICK-11 | 2026-10-01 | Despliegue en producción: `https://ianmartinez.dev/examen-tapterminal`. | [#12](https://github.com/IanHMV/examen-tapterminal/pull/12) |
 | TICK-12 | 2026-10-01 | Modelo `Product` en MongoDB: código autogenerado atómico (`PRD-0001`), precio `Decimal128`, índices y datos iniciales. | [#13](https://github.com/IanHMV/examen-tapterminal/pull/13) |
+| TICK-13 | 2026-10-01 | Alta de productos: `POST /api/v1/products`, validación en Laravel y Angular, y mensajes en español. | [#14](https://github.com/IanHMV/examen-tapterminal/pull/14) |

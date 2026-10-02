@@ -20,6 +20,24 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Server(url: L5_SWAGGER_CONST_HOST, description: 'Servidor actual')]
 #[OA\Tag(name: 'Sistema', description: 'Estado y salud del servicio')]
+#[OA\Tag(name: 'Productos', description: 'Catálogo de productos')]
+#[OA\Schema(
+    schema: 'ValidationError',
+    description: 'Respuesta 422 de Laravel: un mensaje general y los errores de cada campo.',
+    required: ['message', 'errors'],
+    properties: [
+        new OA\Property(property: 'message', type: 'string', description: 'Primer error y cuántos más hay.'),
+        new OA\Property(
+            property: 'errors',
+            type: 'object',
+            additionalProperties: new OA\AdditionalProperties(
+                type: 'array',
+                items: new OA\Items(type: 'string')
+            )
+        ),
+    ],
+    type: 'object'
+)]
 class OpenApiSpec
 {
 }
