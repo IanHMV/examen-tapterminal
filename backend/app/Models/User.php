@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Section;
+use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasSequentialCode;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Database\Eloquent\Collection;
@@ -28,6 +29,7 @@ use MongoDB\Laravel\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
+    use Auditable;
     use HasApiTokens;
     use HasFactory;
     use HasSequentialCode;
@@ -110,6 +112,15 @@ class User extends Authenticatable
             Section::cases(),
             fn (Section $section) => in_array($section->value, $keys, true),
         ));
+    }
+
+    /**
+     * Campos que guarda la bitácora en cada cambio. La contraseña está en $hidden:
+     * solo se anota que cambió, nunca su valor (ni cifrado).
+     */
+    protected function auditedAttributes(): array
+    {
+        return ['name', 'email', 'phone', 'profile_codes', 'photo_id', 'password'];
     }
 
     /** Prefijo del código autogenerado: USR-0001. */

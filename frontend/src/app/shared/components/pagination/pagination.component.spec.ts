@@ -74,6 +74,13 @@ describe('PaginationComponent', () => {
     expect(links).toEqual(['/lista?pagina=1', '/lista?pagina=3']);
   });
 
+  it('conserva los demás parámetros de la URL, como los filtros', async () => {
+    host = await harness.navigateByUrl('/lista?entidad=products&pagina=2', HostComponent);
+    const { links } = show(buildPageInfo(2, 3, 25));
+
+    expect(links).toEqual(['/lista?entidad=products&pagina=1', '/lista?entidad=products&pagina=3']);
+  });
+
   it('en una página sin datos (más allá de la última) omite el rango', () => {
     const { text } = show(buildPageInfo(9, 3, 25));
 

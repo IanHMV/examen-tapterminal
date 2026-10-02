@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthcheckController;
 use App\Http\Controllers\Api\V1\ProductController;
@@ -57,6 +58,10 @@ Route::prefix('v1')->name('v1.')->group(function () {
         Route::middleware('section:users')->group(function () {
             Route::apiResource('users', UserController::class);
             Route::post('/users/{user}/photo', [UserController::class, 'updatePhoto'])->name('users.photo.update');
+        });
+
+        Route::middleware('section:audit_log')->group(function () {
+            Route::get('/audit-logs', AuditLogController::class)->name('audit-logs.index');
         });
     });
 });

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use App\Models\Concerns\HasSequentialCode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
@@ -17,6 +18,7 @@ use MongoDB\Laravel\Eloquent\Model;
  */
 class Product extends Model
 {
+    use Auditable;
     use HasFactory;
     use HasSequentialCode;
 
@@ -43,6 +45,12 @@ class Product extends Model
     public function getRouteKeyName(): string
     {
         return 'code';
+    }
+
+    /** Campos que guarda la bitácora en cada cambio. */
+    protected function auditedAttributes(): array
+    {
+        return ['name', 'brand', 'price'];
     }
 
     /** Prefijo del código autogenerado: PRD-0001. */

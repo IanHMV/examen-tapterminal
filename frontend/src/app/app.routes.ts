@@ -115,6 +115,13 @@ export const routes: Routes = [
         data: { section: 'users' },
         loadComponent: () => import('./features/users/user-form/user-form.component').then((m) => m.UserFormComponent),
       },
+      {
+        path: 'bitacora',
+        title: 'Bitácora | Examen TAP Terminal',
+        data: { section: 'audit_log' },
+        loadComponent: () =>
+          import('./features/audit-log/audit-log-list/audit-log-list.component').then((m) => m.AuditLogListComponent),
+      },
     ],
   },
   // Cualquier otra URL lleva a la primera pantalla permitida (evita el error NG04002).
