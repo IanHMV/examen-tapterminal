@@ -116,7 +116,7 @@ describe('AuditLogListComponent', () => {
     await open();
     expectListRequest().flush(buildPage([buildAuditLog()]));
 
-    (screen().querySelector('tbody .link-button') as HTMLButtonElement).click();
+    (screen().querySelector('tbody .btn-outline-primary') as HTMLButtonElement).click();
     const dialog = screen().querySelector('dialog') as HTMLDialogElement;
 
     expect(dialog.open).toBeTrue();

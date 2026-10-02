@@ -73,10 +73,10 @@ describe('ProductDetailComponent', () => {
 
     /** Pulsa "Eliminar" y confirma en el diálogo. */
     function deleteAndConfirm(): void {
-      (screen().querySelector('.product-detail__actions .button--danger') as HTMLButtonElement).click();
+      (screen().querySelector('.product-detail__actions .btn-outline-danger') as HTMLButtonElement).click();
       const dialog = screen().querySelector('dialog') as HTMLDialogElement;
       expect(dialog.open).toBeTrue();
-      (dialog.querySelector('.button--danger') as HTMLButtonElement).click();
+      (dialog.querySelector('.btn-danger') as HTMLButtonElement).click();
     }
 
     it('Elimina tras confirmar y avisa que se eliminó', () => {

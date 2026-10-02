@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of, tap } from 'rxjs';
 
@@ -56,8 +56,14 @@ export class AuthService {
     return session && new Date(session.expiresAt) > new Date() ? session.token : null;
   }
 
+  /**
+   * Las credenciales van en el encabezado Authorization: Basic base64(correo:contraseña),
+   * nunca en el cuerpo de la petición. HTTPS cifra el encabezado en el camino.
+   */
   login(email: string, password: string): Observable<AuthUser> {
-    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, { email, password }).pipe(
+    const headers = new HttpHeaders({ Authorization: `Basic ${toBase64(`${email}:${password}`)}` });
+
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, null, { headers }).pipe(
       tap((response) => {
         this.saveSession({ token: response.token, expiresAt: response.expires_at });
         this.user.set(response.user);
@@ -147,6 +153,11 @@ export class AuthService {
       // Sin almacenamiento, la sesión dura mientras la pestaña siga abierta.
     }
   }
+}
+
+/** Base64 de un texto UTF-8 (btoa solo acepta Latin-1 y fallaría con una contraseña con "ñ"). */
+function toBase64(text: string): string {
+  return btoa(String.fromCharCode(...new TextEncoder().encode(text)));
 }
 
 function readSession(): StoredSession | null {

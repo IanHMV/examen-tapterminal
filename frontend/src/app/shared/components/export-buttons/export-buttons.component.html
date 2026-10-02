@@ -1,12 +1,12 @@
-<div class="export-buttons" role="group" aria-label="Exportar el listado">
-  <button type="button" class="button button--secondary" [disabled]="downloading() !== null" (click)="download('xlsx')">
+<div class="btn-group btn-group-sm export-buttons" role="group" aria-label="Exportar el listado">
+  <button type="button" class="btn btn-outline-secondary" [disabled]="downloading() !== null" (click)="download('xlsx')">
     {{ downloading() === 'xlsx' ? 'Generando…' : 'Exportar a Excel' }}
   </button>
-  <button type="button" class="button button--secondary" [disabled]="downloading() !== null" (click)="download('pdf')">
+  <button type="button" class="btn btn-outline-secondary" [disabled]="downloading() !== null" (click)="download('pdf')">
     {{ downloading() === 'pdf' ? 'Generando…' : 'Exportar a PDF' }}
   </button>
 </div>
 
 @if (errorMessage(); as message) {
-  <p class="alert alert--error export-buttons__error" role="alert">{{ message }}</p>
+  <div class="alert alert-danger py-2 small mt-2 mb-0" role="alert">{{ message }}</div>
 }

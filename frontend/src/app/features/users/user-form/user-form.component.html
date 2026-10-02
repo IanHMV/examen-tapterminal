@@ -1,150 +1,169 @@
-<section class="form-page">
-  @if (isEdit) {
-    <h2>Editar usuario</h2>
-    <p class="form-page__hint">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
-  } @else {
-    <h2>Nuevo usuario</h2>
-    <p class="form-page__hint">
-      El código y la fecha de creación se asignan automáticamente. El usuario recibirá un correo con un enlace
-      para elegir su contraseña.
-    </p>
-  }
+<section class="page-narrow">
+  <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover small"
+    [routerLink]="isEdit ? ['/usuarios', code] : ['/usuarios']">← Volver</a>
 
-  @if (savedUser(); as user) {
-    <p class="alert alert--success" role="status">
+  <div class="card shadow-sm mt-2">
+    <div class="card-body p-4">
       @if (isEdit) {
-        Se guardaron los cambios de
+        <h2 class="h4">Editar usuario</h2>
+        <p class="text-body-secondary small">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
       } @else {
-        Se creó el usuario
+        <h2 class="h4">Nuevo usuario</h2>
+        <p class="text-body-secondary small">
+          El código y la fecha de creación se asignan automáticamente. El usuario recibirá un correo con un enlace
+          para elegir su contraseña.
+        </p>
       }
-      <a [routerLink]="['/usuarios', user.code]"><strong>{{ user.code }}</strong></a> ({{ user.email }}).
-      @if (!isEdit) {
-        Le enviamos un correo para que elija su contraseña.
+
+      @if (savedUser(); as user) {
+        <div class="alert alert-success" role="status">
+          @if (isEdit) {
+            Se guardaron los cambios de
+          } @else {
+            Se creó el usuario
+          }
+          <a class="alert-link" [routerLink]="['/usuarios', user.code]">{{ user.code }}</a> ({{ user.email }}).
+          @if (!isEdit) {
+            Le enviamos un correo para que elija su contraseña.
+          }
+        </div>
       }
-    </p>
-  }
 
-  @if (errorMessage(); as message) {
-    <p class="alert alert--error" role="alert">{{ message }}</p>
-  }
+      @if (errorMessage(); as message) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
 
-  @switch (loadState()) {
-    @case ('loading') {
-      <p>Cargando…</p>
-    }
-    @case ('not-found') {
-      <p class="alert alert--error" role="alert">El usuario no existe.</p>
-    }
-    @case ('error') {
-      <p class="alert alert--error" role="alert">No se pudo cargar el formulario. Intenta de nuevo.</p>
-    }
-    @case ('ready') {
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        @let name = form.controls.name;
-        <div class="field">
-          <label for="name">Nombre</label>
-          <input id="name" type="text" formControlName="name" autocomplete="off"
-            [attr.aria-invalid]="name.invalid && name.touched" aria-describedby="name-error" />
-          @if (name.invalid && name.touched) {
-            <p id="name-error" class="field__error">
-              @if (name.hasError('server')) {
-                {{ name.getError('server') }}
-              } @else if (name.hasError('maxlength')) {
-                Máximo {{ rules.nameMaxLength }} caracteres.
-              } @else {
-                El nombre es obligatorio.
+      @switch (loadState()) {
+        @case ('loading') {
+          <p class="text-body-secondary">Cargando…</p>
+        }
+        @case ('not-found') {
+          <div class="alert alert-danger" role="alert">El usuario no existe.</div>
+        }
+        @case ('error') {
+          <div class="alert alert-danger" role="alert">No se pudo cargar el formulario. Intenta de nuevo.</div>
+        }
+        @case ('ready') {
+          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            <div class="row g-3 mb-3">
+              @let name = form.controls.name;
+              <div class="col-sm-6">
+                <label class="form-label" for="name">Nombre</label>
+                <input id="name" class="form-control" type="text" formControlName="name" autocomplete="off"
+                  [class.is-invalid]="name.invalid && name.touched" [attr.aria-invalid]="name.invalid && name.touched"
+                  aria-describedby="name-error" />
+                @if (name.invalid && name.touched) {
+                  <div id="name-error" class="invalid-feedback">
+                    @if (name.hasError('server')) {
+                      {{ name.getError('server') }}
+                    } @else if (name.hasError('maxlength')) {
+                      Máximo {{ rules.nameMaxLength }} caracteres.
+                    } @else {
+                      El nombre es obligatorio.
+                    }
+                  </div>
+                }
+              </div>
+
+              @let email = form.controls.email;
+              <div class="col-sm-6">
+                <label class="form-label" for="email">Usuario (correo electrónico)</label>
+                <input id="email" class="form-control" type="email" formControlName="email" autocomplete="off"
+                  [class.is-invalid]="email.invalid && email.touched" [attr.aria-invalid]="email.invalid && email.touched"
+                  aria-describedby="email-error" />
+                @if (email.invalid && email.touched) {
+                  <div id="email-error" class="invalid-feedback">
+                    @if (email.hasError('server')) {
+                      {{ email.getError('server') }}
+                    } @else if (email.hasError('email')) {
+                      Escribe un correo válido.
+                    } @else {
+                      El correo es obligatorio.
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            @let phone = form.controls.phone;
+            <div class="mb-3">
+              <label class="form-label" for="phone">Teléfono (opcional)</label>
+              <input id="phone" class="form-control" type="tel" formControlName="phone" autocomplete="off"
+                placeholder="+52 314 123 4567" [class.is-invalid]="phone.invalid && phone.touched"
+                [attr.aria-invalid]="phone.invalid && phone.touched" aria-describedby="phone-hint phone-error" />
+              <div id="phone-hint" class="form-text">Incluye la lada del país, por ejemplo +52 para México.</div>
+              @if (phone.invalid && phone.touched) {
+                <div id="phone-error" class="invalid-feedback">
+                  @if (phone.hasError('server')) {
+                    {{ phone.getError('server') }}
+                  } @else {
+                    El teléfono debe empezar con + y la lada del país, por ejemplo +52 314 123 4567.
+                  }
+                </div>
               }
-            </p>
-          }
-        </div>
+            </div>
 
-        @let email = form.controls.email;
-        <div class="field">
-          <label for="email">Usuario (correo electrónico)</label>
-          <input id="email" type="email" formControlName="email" autocomplete="off"
-            [attr.aria-invalid]="email.invalid && email.touched" aria-describedby="email-error" />
-          @if (email.invalid && email.touched) {
-            <p id="email-error" class="field__error">
-              @if (email.hasError('server')) {
-                {{ email.getError('server') }}
-              } @else if (email.hasError('email')) {
-                Escribe un correo válido.
-              } @else {
-                El correo es obligatorio.
+            @let profiles = form.controls.profile_codes;
+            @let profilesInvalid = profiles.invalid && profiles.touched;
+            <fieldset class="mb-3" [attr.aria-invalid]="profilesInvalid" aria-describedby="profile_codes-error">
+              <legend class="form-label fs-6">Perfiles</legend>
+              <div class="border rounded p-3" [class.border-danger]="profilesInvalid">
+                @for (profile of profileOptions(); track profile.code) {
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" [id]="'profile-' + profile.code" [value]="profile.code"
+                      [checked]="isSelected(profile.code)" (change)="toggleProfile(profile.code, $event)" />
+                    <label class="form-check-label" [for]="'profile-' + profile.code">{{ profile.name }}</label>
+                  </div>
+                } @empty {
+                  <p class="mb-0 small">
+                    No hay perfiles.
+                    <a class="link-primary" routerLink="/perfiles/nuevo">Crea uno primero</a>.
+                  </p>
+                }
+              </div>
+              @if (profilesInvalid) {
+                <div id="profile_codes-error" class="invalid-feedback d-block">
+                  @if (profiles.hasError('server')) {
+                    {{ profiles.getError('server') }}
+                  } @else {
+                    Selecciona al menos un perfil.
+                  }
+                </div>
               }
-            </p>
-          }
-        </div>
+            </fieldset>
 
-        @let phone = form.controls.phone;
-        <div class="field">
-          <label for="phone">Teléfono (opcional)</label>
-          <input id="phone" type="tel" formControlName="phone" autocomplete="off" placeholder="+52 314 123 4567"
-            [attr.aria-invalid]="phone.invalid && phone.touched" aria-describedby="phone-hint phone-error" />
-          <small id="phone-hint">Incluye la lada del país, por ejemplo +52 para México.</small>
-          @if (phone.invalid && phone.touched) {
-            <p id="phone-error" class="field__error">
-              @if (phone.hasError('server')) {
-                {{ phone.getError('server') }}
-              } @else {
-                El teléfono debe empezar con + y la lada del país, por ejemplo +52 314 123 4567.
+            <div class="mb-4">
+              <label class="form-label" for="photo">{{ isEdit ? 'Cambiar foto de perfil (opcional)' : 'Foto de perfil' }}</label>
+              <div class="user-form__photo d-flex align-items-center gap-3">
+                @if (photoPreview() ?? currentPhotoUrl(); as src) {
+                  <img class="rounded-circle object-fit-cover bg-body-secondary" [src]="src"
+                    alt="Vista previa de la foto de perfil" width="64" height="64" />
+                }
+                <input id="photo" class="form-control" type="file" accept="image/jpeg,image/png,image/webp"
+                  (change)="selectPhoto($event)" [class.is-invalid]="photoError() !== null"
+                  [attr.aria-invalid]="photoError() !== null" aria-describedby="photo-hint photo-error" />
+              </div>
+              <div id="photo-hint" class="form-text">JPG, PNG o WebP de hasta 2 MB.</div>
+              @if (photoError(); as message) {
+                <div id="photo-error" class="invalid-feedback d-block">{{ message }}</div>
               }
-            </p>
-          }
-        </div>
+            </div>
 
-        @let profiles = form.controls.profile_codes;
-        <fieldset class="field checkbox-group" [attr.aria-invalid]="profiles.invalid && profiles.touched"
-          aria-describedby="profile_codes-error">
-          <legend>Perfiles</legend>
-          @for (profile of profileOptions(); track profile.code) {
-            <label class="checkbox">
-              <input type="checkbox" [value]="profile.code" [checked]="isSelected(profile.code)"
-                (change)="toggleProfile(profile.code, $event)" />
-              {{ profile.name }}
-            </label>
-          } @empty {
-            <p>No hay perfiles. <a routerLink="/perfiles/nuevo">Crea uno primero</a>.</p>
-          }
-          @if (profiles.invalid && profiles.touched) {
-            <p id="profile_codes-error" class="field__error">
-              @if (profiles.hasError('server')) {
-                {{ profiles.getError('server') }}
-              } @else {
-                Selecciona al menos un perfil.
-              }
-            </p>
-          }
-        </fieldset>
-
-        <div class="field">
-          <label for="photo">{{ isEdit ? 'Cambiar foto de perfil (opcional)' : 'Foto de perfil' }}</label>
-          <div class="user-form__photo">
-            @if (photoPreview() ?? currentPhotoUrl(); as src) {
-              <img [src]="src" alt="Vista previa de la foto de perfil" width="72" height="72" />
-            }
-            <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" (change)="selectPhoto($event)"
-              [attr.aria-invalid]="photoError() !== null" aria-describedby="photo-hint photo-error" />
-          </div>
-          <small id="photo-hint">JPG, PNG o WebP de hasta 2 MB.</small>
-          @if (photoError(); as message) {
-            <p id="photo-error" class="field__error">{{ message }}</p>
-          }
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="button" [disabled]="saving()">
-            @if (saving()) {
-              Guardando…
-            } @else if (isEdit) {
-              Guardar cambios
-            } @else {
-              Guardar usuario
-            }
-          </button>
-          <a [routerLink]="isEdit ? ['/usuarios', code] : ['/usuarios']">Cancelar</a>
-        </div>
-      </form>
-    }
-  }
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="saving()">
+                @if (saving()) {
+                  Guardando…
+                } @else if (isEdit) {
+                  Guardar cambios
+                } @else {
+                  Guardar usuario
+                }
+              </button>
+              <a class="btn btn-outline-secondary" [routerLink]="isEdit ? ['/usuarios', code] : ['/usuarios']">Cancelar</a>
+            </div>
+          </form>
+        }
+      }
+    </div>
+  </div>
 </section>

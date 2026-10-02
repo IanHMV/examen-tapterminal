@@ -53,7 +53,6 @@ type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
   selector: 'app-user-form',
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './user-form.component.html',
-  styleUrl: './user-form.component.scss',
 })
 export class UserFormComponent {
   private readonly fb = inject(NonNullableFormBuilder);

@@ -1,70 +1,78 @@
-<section class="user-detail">
-  <a routerLink="/usuarios">← Volver al listado</a>
+<section class="page-narrow">
+  <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover small" routerLink="/usuarios">
+    ← Volver al listado
+  </a>
 
-  @switch (state()) {
-    @case ('loading') {
-      <p>Cargando usuario…</p>
-    }
-    @case ('not-found') {
-      <p class="alert alert--error" role="alert">El usuario no existe.</p>
-    }
-    @case ('error') {
-      <p class="alert alert--error" role="alert">No se pudo cargar el usuario. Intenta de nuevo.</p>
-    }
-    @case ('deleted') {
-      <p class="alert alert--success" role="status">Se eliminó el usuario {{ user()?.code }}.</p>
-    }
-    @case ('ready') {
-      @if (user(); as user) {
-        <div class="user-detail__header">
-          <img class="user-detail__photo" [src]="user.photo_url" [alt]="'Foto de perfil de ' + user.name"
-            width="96" height="96" />
-          <h2>{{ user.name }}</h2>
-        </div>
+  <div class="mt-2">
+    @switch (state()) {
+      @case ('loading') {
+        <p class="text-body-secondary">Cargando usuario…</p>
+      }
+      @case ('not-found') {
+        <div class="alert alert-danger" role="alert">El usuario no existe.</div>
+      }
+      @case ('error') {
+        <div class="alert alert-danger" role="alert">No se pudo cargar el usuario. Intenta de nuevo.</div>
+      }
+      @case ('deleted') {
+        <div class="alert alert-success" role="status">Se eliminó el usuario {{ user()?.code }}.</div>
+      }
+      @case ('ready') {
+        @if (user(); as user) {
+          <div class="card shadow-sm">
+            <div class="card-header bg-body d-flex align-items-center gap-3">
+              <img class="rounded-circle object-fit-cover bg-body-secondary" [src]="user.photo_url"
+                [alt]="'Foto de perfil de ' + user.name" width="72" height="72" />
+              <h2 class="h5 mb-0">{{ user.name }}</h2>
+            </div>
+            <div class="card-body">
+              <dl class="details">
+                <dt>Código</dt>
+                <dd>{{ user.code }}</dd>
+                <dt>Usuario</dt>
+                <dd>{{ user.email }}</dd>
+                <dt>Nombre</dt>
+                <dd>{{ user.name }}</dd>
+                <dt>Teléfono</dt>
+                <dd>{{ user.phone ?? 'Sin teléfono' }}</dd>
+                <dt>Fecha de creación</dt>
+                <dd>{{ user.created_at | date: dateTimeFormat }}</dd>
+              </dl>
 
-        <dl class="details">
-          <dt>Código</dt>
-          <dd>{{ user.code }}</dd>
-          <dt>Usuario</dt>
-          <dd>{{ user.email }}</dd>
-          <dt>Nombre</dt>
-          <dd>{{ user.name }}</dd>
-          <dt>Teléfono</dt>
-          <dd>{{ user.phone ?? 'Sin teléfono' }}</dd>
-          <dt>Fecha de creación</dt>
-          <dd>{{ user.created_at | date: dateTimeFormat }}</dd>
-        </dl>
+              <h3 class="h6 mt-4 mb-2">Perfiles</h3>
+              <ul class="list-group user-detail__profiles">
+                @for (profile of user.profiles; track profile.code) {
+                  <li class="list-group-item py-2 d-flex justify-content-between">
+                    {{ profile.name }} <span class="text-body-secondary small">{{ profile.code }}</span>
+                  </li>
+                } @empty {
+                  <li class="list-group-item py-2 text-body-secondary">Sin perfiles asignados.</li>
+                }
+              </ul>
 
-        <h3 class="user-detail__subtitle">Perfiles</h3>
-        <ul class="user-detail__profiles">
-          @for (profile of user.profiles; track profile.code) {
-            <li>{{ profile.name }} <span class="user-detail__code">({{ profile.code }})</span></li>
-          } @empty {
-            <li>Sin perfiles asignados.</li>
-          }
-        </ul>
-
-        @if (deleteError(); as message) {
-          <p class="alert alert--error" role="alert">{{ message }}</p>
+              @if (deleteError(); as message) {
+                <div class="alert alert-danger mt-3 mb-0" role="alert">{{ message }}</div>
+              }
+            </div>
+            <div class="card-footer bg-body user-detail__actions d-flex gap-2">
+              <a class="btn btn-primary btn-sm" [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
+              <!-- Nadie puede eliminarse a sí mismo (la API también lo impide). -->
+              @if (user.code !== currentUserCode()) {
+                <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="deleting()" (click)="askDelete()">
+                  {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
+                </button>
+              }
+            </div>
+          </div>
         }
-
-        <div class="form-actions user-detail__actions">
-          <a class="button" [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
-          <!-- Nadie puede eliminarse a sí mismo (la API también lo impide). -->
-          @if (user.code !== currentUserCode()) {
-            <button type="button" class="button button--danger" [disabled]="deleting()" (click)="askDelete()">
-              {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
-            </button>
-          }
-        </div>
       }
     }
-  }
+  </div>
 
   <app-confirm-dialog title="¿Eliminar usuario?" confirmLabel="Eliminar" (confirmed)="deleteUser()">
     @if (user(); as user) {
       <p>Se eliminará <strong>{{ user.code }}</strong> · {{ user.email }}, con su foto.</p>
-      <p>Esta acción no se puede deshacer.</p>
+      <p class="mb-0">Esta acción no se puede deshacer.</p>
     }
   </app-confirm-dialog>
 </section>

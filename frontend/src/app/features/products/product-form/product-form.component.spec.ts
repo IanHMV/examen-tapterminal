@@ -115,7 +115,7 @@ describe('ProductFormComponent', () => {
         { status: 201, statusText: 'Created' },
       );
 
-      const success = screen().querySelector('.alert--success') as HTMLElement;
+      const success = screen().querySelector('.alert-success') as HTMLElement;
       expect(success.textContent).toContain('Se creó el producto');
       expect(success.querySelector('a')?.getAttribute('href')).toBe('/productos/PRD-0012');
       expect(valueOf('name')).toBe('');
@@ -167,7 +167,7 @@ describe('ProductFormComponent', () => {
       expect(request.request.body).toEqual({ name: 'Guantes de carga de piel', brand: 'Urrea', price: 129.5 });
       request.flush({ data: buildProduct({ price: '129.50' }) });
 
-      const success = screen().querySelector('.alert--success') as HTMLElement;
+      const success = screen().querySelector('.alert-success') as HTMLElement;
       expect(success.textContent).toContain('Se guardaron los cambios de');
       expect(success.querySelector('a')?.getAttribute('href')).toBe('/productos/PRD-0003');
       expect(valueOf('price')).toBe('129.5');

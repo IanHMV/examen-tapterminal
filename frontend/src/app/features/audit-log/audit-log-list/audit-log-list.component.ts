@@ -37,7 +37,6 @@ function toEntity(value: string | null): AuditEntity | null {
     ExportButtonsComponent,
   ],
   templateUrl: './audit-log-list.component.html',
-  styleUrl: './audit-log-list.component.scss',
 })
 export class AuditLogListComponent {
   private readonly auditLogService = inject(AuditLogService);

@@ -42,6 +42,14 @@ describe('authInterceptor', () => {
     request.flush({});
   });
 
+  it('no reemplaza un Authorization que ya trae la petición (el Basic del login)', () => {
+    http.post(`${environment.apiUrl}/auth/login`, null, { headers: { Authorization: 'Basic abc=' } }).subscribe();
+
+    const request = httpTesting.expectOne(`${environment.apiUrl}/auth/login`);
+    expect(request.request.headers.get('Authorization')).toBe('Basic abc=');
+    request.flush({});
+  });
+
   it('no envía el token a otros dominios', () => {
     http.get('https://otro-sitio.example.com/datos').subscribe();
 

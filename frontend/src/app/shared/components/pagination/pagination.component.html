@@ -1,15 +1,25 @@
 @let current = page();
-<nav class="pagination" aria-label="Paginación">
-  @if (current.links.prev) {
-    <a routerLink="." [queryParams]="{ pagina: current.meta.current_page - 1 }" queryParamsHandling="merge">← Anterior</a>
-  }
-  <span>
+<nav class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3" aria-label="Paginación">
+  <span class="text-body-secondary small">
     @if (current.meta.from) {
       {{ current.meta.from }}–{{ current.meta.to }} de {{ current.meta.total }} {{ itemsLabel() }} ·
     }
     Página {{ current.meta.current_page }} de {{ current.meta.last_page }}
   </span>
-  @if (current.links.next) {
-    <a routerLink="." [queryParams]="{ pagina: current.meta.current_page + 1 }" queryParamsHandling="merge">Siguiente →</a>
+  @if (current.links.prev || current.links.next) {
+    <ul class="pagination pagination-sm mb-0">
+      @if (current.links.prev) {
+        <li class="page-item">
+          <a class="page-link" routerLink="." [queryParams]="{ pagina: current.meta.current_page - 1 }"
+            queryParamsHandling="merge">← Anterior</a>
+        </li>
+      }
+      @if (current.links.next) {
+        <li class="page-item">
+          <a class="page-link" routerLink="." [queryParams]="{ pagina: current.meta.current_page + 1 }"
+            queryParamsHandling="merge">Siguiente →</a>
+        </li>
+      }
+    </ul>
   }
 </nav>

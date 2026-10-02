@@ -44,14 +44,12 @@ class AuthController extends Controller
         path: '/api/v1/auth/login',
         operationId: 'login',
         summary: 'Iniciar sesión',
-        description: 'Devuelve un token Bearer que vence en 8 horas. En Swagger, cópialo en "Authorize". '
+        description: 'El correo y la contraseña van en el encabezado Authorization: Basic base64(correo:contraseña), '
+            . 'nunca en el cuerpo (HTTPS cifra el encabezado en el camino). En Swagger: "Authorize" → basicAuth. '
+            . 'Devuelve un token Bearer que vence en 8 horas; cópialo en "Authorize" → bearerAuth. '
             . 'Máximo 5 intentos por minuto para cada correo.',
-        security: [],
+        security: [['basicAuth' => []]],
         tags: ['Sesión'],
-        requestBody: new OA\RequestBody(
-            required: true,
-            content: new OA\JsonContent(ref: '#/components/schemas/LoginInput')
-        ),
         responses: [
             new OA\Response(
                 response: 200,
@@ -87,10 +85,11 @@ class AuthController extends Controller
     )]
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::query()->where('email', Str::lower($request->string('email')))->first();
+        // Credenciales del encabezado Authorization: Basic (ver LoginRequest).
+        $user = User::query()->where('email', Str::lower($request->validated('email')))->first();
 
         // Se compara siempre (aunque el correo no exista) para que tarde lo mismo.
-        $passwordMatches = Hash::check($request->string('password'), $user?->password ?? self::DUMMY_HASH);
+        $passwordMatches = Hash::check($request->validated('password'), $user?->password ?? self::DUMMY_HASH);
 
         if ($user === null || ! $passwordMatches) {
             // Mismo mensaje en ambos casos: no revela si el correo está registrado.

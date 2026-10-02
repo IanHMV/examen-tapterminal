@@ -7,7 +7,7 @@ Sistema web desarrollado para el examen de admisión del Área de Desarrollo de 
 | Capa              | Tecnología                             |
 |-------------------|----------------------------------------|
 | Backend           | Laravel 11 · PHP 8.2                   |
-| Frontend          | Angular 19 · TypeScript 5              |
+| Frontend          | Angular 19 · TypeScript 5 · Bootstrap 5 |
 | Base de datos     | MongoDB 8.0 (GridFS para las fotos)    |
 | Documentación API | Swagger (OpenAPI 3) · Postman          |
 | Pruebas           | PHPUnit 11 · Jasmine + Karma           |
@@ -94,8 +94,8 @@ Queda en http://localhost:8090/examen-tapterminal/.
 
 1. Importa en Postman los 3 archivos de [`postman/`](postman/): la colección y los entornos "Local" y "Producción".
 2. Elige el entorno y escribe tu correo y contraseña en las variables `email` y `password`.
-3. Ejecuta "Sesión → Iniciar sesión". El token se guarda solo y las demás peticiones lo envían como
-   `Authorization: Bearer {{token}}`.
+3. Ejecuta "Sesión → Iniciar sesión": envía el correo y la contraseña en `Authorization: Basic` y guarda
+   el token; las demás peticiones lo envían como `Authorization: Bearer {{token}}`.
 
 - Las 30 rutas están organizadas por sección. Cada una trae ejemplos de respuesta (pestaña "Examples") y
   pruebas (pestaña "Tests").
@@ -116,6 +116,9 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 
 ### Autenticación (Laravel Sanctum)
 
+- **Credenciales en el encabezado, nunca en el cuerpo:** el login envía el correo y la contraseña en
+  `Authorization: Basic base64(correo:contraseña)`. Base64 es solo una codificación: lo que los cifra en
+  el camino es HTTPS. Los campos del cuerpo se ignoran.
 - **Tokens Bearer, no cookies:** `POST /api/v1/auth/login` devuelve un token que se envía en
   `Authorization: Bearer <token>`. La API no guarda sesiones y el mismo token sirve en Swagger
   ("Authorize") y Postman. Todas las rutas lo exigen, salvo el healthcheck, el login y la recuperación
@@ -426,3 +429,4 @@ Registro del avance del proyecto
 | TICK-24 | 2026-10-02 | Pruebas de la API con PHPUnit contra un MongoDB desechable: reglas del examen, seguridad y regresiones. | [#26](https://github.com/IanHMV/examen-tapterminal/pull/26) |
 | TICK-25 | 2026-10-02 | CI/CD con GitHub Actions: pruebas, PSR-12, Swagger e imágenes en cada PR, validación del título y despliegue automático al VPS. | [#27](https://github.com/IanHMV/examen-tapterminal/pull/27) |
 | TICK-26 | 2026-10-02 | Colección de Postman (30 rutas, ejemplos y pruebas) generada desde OpenAPI, guía para ejecutarlo en local y verificación final. | [#28](https://github.com/IanHMV/examen-tapterminal/pull/28) |
+| TICK-27 | 2026-10-02 | Login con credenciales en el encabezado Authorization (Basic), interfaz con Bootstrap 5, estado de la API en la consola y tinker en la imagen de producción. | [#29](https://github.com/IanHMV/examen-tapterminal/pull/29) |

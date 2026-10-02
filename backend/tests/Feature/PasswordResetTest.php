@@ -52,8 +52,8 @@ class PasswordResetTest extends TestCase
         $this->postJson('/api/v1/auth/reset-password', $data)->assertOk();
 
         $this->assertSame(0, $user->tokens()->count());
-        $this->postJson('/api/v1/auth/login', ['email' => $user->email, 'password' => self::PASSWORD])->assertStatus(422);
-        $this->postJson('/api/v1/auth/login', ['email' => $user->email, 'password' => self::NEW_PASSWORD])->assertOk();
+        $this->withBasicAuth($user->email, self::PASSWORD)->postJson('/api/v1/auth/login')->assertStatus(422);
+        $this->withBasicAuth($user->email, self::NEW_PASSWORD)->postJson('/api/v1/auth/login')->assertOk();
 
         $this->postJson('/api/v1/auth/reset-password', $data)
             ->assertStatus(422)

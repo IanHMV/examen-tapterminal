@@ -1,14 +1,17 @@
-<section class="form-page">
-  <h2>Sin acceso</h2>
+<section class="page-narrow">
+  <h2 class="h4 mb-3">Sin acceso</h2>
 
   @if (allowedLinks().length > 0) {
-    <p>Tus perfiles no incluyen esa sección. Puedes ir a:</p>
-    <ul>
+    <div class="alert alert-warning">Tus perfiles no incluyen esa sección.</div>
+    <p class="mb-2">Puedes ir a:</p>
+    <div class="list-group">
       @for (link of allowedLinks(); track link.key) {
-        <li><a [routerLink]="link.path">{{ link.label }}</a></li>
+        <a class="list-group-item list-group-item-action" [routerLink]="link.path">{{ link.label }}</a>
       }
-    </ul>
+    </div>
   } @else {
-    <p>Tu usuario todavía no tiene secciones asignadas. Pide a un administrador que te asigne un perfil.</p>
+    <div class="alert alert-warning">
+      Tu usuario todavía no tiene secciones asignadas. Pide a un administrador que te asigne un perfil.
+    </div>
   }
 </section>

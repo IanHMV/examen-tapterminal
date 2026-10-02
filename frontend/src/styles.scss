@@ -1,218 +1,21 @@
-/* Estilos globales */
+/*
+ * Estilos globales. La base es Bootstrap 5 (angular.json); aquí solo va lo que
+ * Bootstrap no resuelve: la ventana modal nativa (<dialog>), la lista de datos
+ * de un registro y el ancho de las pantallas de formulario y de inicio de sesión.
+ */
 body {
-  margin: 0;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  color: #111827;
+  background: var(--bs-tertiary-bg);
 }
 
-/* Estilos compartidos por varias pantallas */
-.alert {
-  padding: 0.75rem 1rem;
-  border-radius: 0.375rem;
-
-  &--success {
-    background: #ecfdf5;
-    color: #065f46;
-  }
-
-  &--error {
-    background: #fef2f2;
-    color: #991b1b;
-  }
+/* Pantallas de alta, edición y detalle: no ocupan todo el ancho */
+.page-narrow {
+  max-width: 42rem;
 }
 
-.button {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  font: inherit;
-  color: #fff;
-  text-decoration: none;
-  background: #111827;
-  border: 0;
-  border-radius: 0.375rem;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: wait;
-  }
-
-  &--secondary {
-    color: #111827;
-    background: #e5e7eb;
-  }
-
-  &--danger {
-    background: #b91c1c;
-  }
-}
-
-/* Pantallas de alta/edición */
-.form-page {
-  max-width: 32rem;
-
-  h2 {
-    margin-top: 0;
-  }
-}
-
-.form-page__hint {
-  color: #4b5563;
-}
-
-.form-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* Pantallas sin sesión: inicio de sesión y recuperación de contraseña */
+/* Inicio de sesión y recuperación de contraseña */
 .auth-card {
-  max-width: 24rem;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-
-  h2 {
-    margin-top: 0;
-  }
-}
-
-/* Botón a todo lo ancho; también sirve para enlaces con aspecto de botón */
-.auth-card__submit {
-  box-sizing: border-box;
-  width: 100%;
-  text-align: center;
-}
-
-.auth-card__footer {
-  margin: 1rem 0 0;
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-/* Campo de formulario: etiqueta, control, ayuda y mensaje de error */
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
-
-  label {
-    font-weight: 600;
-  }
-
-  input:not([type='checkbox']),
-  select {
-    padding: 0.5rem;
-    font: inherit;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-
-    &[aria-invalid='true'] {
-      border-color: #dc2626;
-    }
-  }
-
-  small {
-    color: #6b7280;
-  }
-}
-
-.field__error {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #dc2626;
-}
-
-/* Grupo de casillas: secciones de un perfil, perfiles de un usuario */
-.checkbox-group {
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-
-  &[aria-invalid='true'] {
-    border-color: #dc2626;
-  }
-
-  legend {
-    padding: 0 0.25rem;
-    font-weight: 600;
-  }
-
-  .checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 400;
-  }
-}
-
-/* Encabezado de un listado: título y acción principal ("Nuevo …") */
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-
-  h2 {
-    margin: 0;
-  }
-}
-
-/* Acciones del encabezado: exportar y "Nuevo …" */
-.page-header__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-/* Tablas de los listados */
-.table {
-  width: 100%;
-  margin-top: 1rem;
-  border-collapse: collapse;
-
-  th,
-  td {
-    padding: 0.5rem 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  th {
-    background: #f9fafb;
-  }
-
-  .table__number {
-    text-align: right;
-  }
-
-  .table__actions > * + * {
-    margin-left: 0.75rem;
-  }
-}
-
-/* Acción de una fila con aspecto de enlace: no navega, por eso es <button> */
-.link-button {
-  padding: 0;
-  font: inherit;
-  color: #1d4ed8;
-  text-decoration: underline;
-  background: none;
-  border: 0;
-  cursor: pointer;
-
-  &--danger {
-    color: #b91c1c;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: wait;
-  }
+  max-width: 26rem;
+  margin: 3rem auto;
 }
 
 /* Datos de un registro: etiqueta y valor en dos columnas */
@@ -220,9 +23,11 @@ body {
   display: grid;
   grid-template-columns: max-content 1fr;
   gap: 0.5rem 1.5rem;
+  margin: 0;
 
   dt {
-    font-weight: 600;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
   }
 
   dd {
@@ -230,27 +35,15 @@ body {
   }
 }
 
-/* Ventanas modales (<dialog> nativo) */
+/* Ventanas modales: <dialog> nativo (foco y Esc sin JavaScript de Bootstrap) */
 .dialog {
-  width: min(28rem, calc(100% - 2rem));
+  width: min(30rem, calc(100% - 2rem));
   padding: 1.5rem;
   border: 0;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 30px rgb(0 0 0 / 20%);
+  border-radius: var(--bs-border-radius-lg);
+  box-shadow: var(--bs-box-shadow-lg);
 
   &::backdrop {
-    background: rgb(17 24 39 / 50%);
+    background: rgb(0 0 0 / 50%);
   }
-}
-
-.dialog__title {
-  margin: 0 0 0.75rem;
-  font-size: 1.125rem;
-}
-
-.dialog__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
 }

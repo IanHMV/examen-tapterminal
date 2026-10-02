@@ -1,92 +1,103 @@
-<section class="form-page">
-  @if (isEdit) {
-    <h2>Editar perfil</h2>
-    <p class="form-page__hint">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
-  } @else {
-    <h2>Nuevo perfil</h2>
-    <p class="form-page__hint">El código y la fecha de creación se asignan automáticamente.</p>
-  }
+<section class="page-narrow">
+  <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover small" routerLink="/perfiles">
+    ← Volver a perfiles
+  </a>
 
-  @if (savedProfile(); as profile) {
-    <p class="alert alert--success" role="status">
+  <div class="card shadow-sm mt-2">
+    <div class="card-body p-4">
       @if (isEdit) {
-        Se guardaron los cambios de <strong>{{ profile.code }}</strong>.
+        <h2 class="h4">Editar perfil</h2>
+        <p class="text-body-secondary small">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
       } @else {
-        Se creó el perfil <strong>{{ profile.code }}</strong>: {{ profile.name }}.
+        <h2 class="h4">Nuevo perfil</h2>
+        <p class="text-body-secondary small">El código y la fecha de creación se asignan automáticamente.</p>
       }
-      <a routerLink="/perfiles">Ver perfiles</a>
-    </p>
-  }
 
-  @if (errorMessage(); as message) {
-    <p class="alert alert--error" role="alert">{{ message }}</p>
-  }
-
-  @switch (loadState()) {
-    @case ('loading') {
-      <p>Cargando…</p>
-    }
-    @case ('not-found') {
-      <p class="alert alert--error" role="alert">El perfil no existe.</p>
-    }
-    @case ('error') {
-      <p class="alert alert--error" role="alert">No se pudo cargar el formulario. Intenta de nuevo.</p>
-    }
-    @case ('ready') {
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        @let name = form.controls.name;
-        <div class="field">
-          <label for="name">Nombre</label>
-          <input id="name" type="text" formControlName="name" autocomplete="off"
-            [attr.aria-invalid]="name.invalid && name.touched" aria-describedby="name-error" />
-          @if (name.invalid && name.touched) {
-            <p id="name-error" class="field__error">
-              @if (name.hasError('server')) {
-                {{ name.getError('server') }}
-              } @else if (name.hasError('maxlength')) {
-                Máximo {{ rules.nameMaxLength }} caracteres.
-              } @else {
-                El nombre es obligatorio.
-              }
-            </p>
+      @if (savedProfile(); as profile) {
+        <div class="alert alert-success" role="status">
+          @if (isEdit) {
+            Se guardaron los cambios de <strong>{{ profile.code }}</strong>.
+          } @else {
+            Se creó el perfil <strong>{{ profile.code }}</strong>: {{ profile.name }}.
           }
+          <a class="alert-link" routerLink="/perfiles">Ver perfiles</a>
         </div>
+      }
 
-        @let sections = form.controls.sections;
-        <fieldset class="field checkbox-group" [attr.aria-invalid]="sections.invalid && sections.touched"
-          aria-describedby="sections-error">
-          <legend>Secciones a las que da acceso</legend>
-          @for (section of sectionCatalog(); track section.key) {
-            <label class="checkbox">
-              <input type="checkbox" [value]="section.key" [checked]="isSelected(section.key)"
-                (change)="toggleSection(section.key, $event)" />
-              {{ section.name }}
-            </label>
-          }
-          @if (sections.invalid && sections.touched) {
-            <p id="sections-error" class="field__error">
-              @if (sections.hasError('server')) {
-                {{ sections.getError('server') }}
-              } @else {
-                Selecciona al menos una sección.
+      @if (errorMessage(); as message) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
+
+      @switch (loadState()) {
+        @case ('loading') {
+          <p class="text-body-secondary">Cargando…</p>
+        }
+        @case ('not-found') {
+          <div class="alert alert-danger" role="alert">El perfil no existe.</div>
+        }
+        @case ('error') {
+          <div class="alert alert-danger" role="alert">No se pudo cargar el formulario. Intenta de nuevo.</div>
+        }
+        @case ('ready') {
+          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            @let name = form.controls.name;
+            <div class="mb-3">
+              <label class="form-label" for="name">Nombre</label>
+              <input id="name" class="form-control" type="text" formControlName="name" autocomplete="off"
+                [class.is-invalid]="name.invalid && name.touched" [attr.aria-invalid]="name.invalid && name.touched"
+                aria-describedby="name-error" />
+              @if (name.invalid && name.touched) {
+                <div id="name-error" class="invalid-feedback">
+                  @if (name.hasError('server')) {
+                    {{ name.getError('server') }}
+                  } @else if (name.hasError('maxlength')) {
+                    Máximo {{ rules.nameMaxLength }} caracteres.
+                  } @else {
+                    El nombre es obligatorio.
+                  }
+                </div>
               }
-            </p>
-          }
-        </fieldset>
+            </div>
 
-        <div class="form-actions">
-          <button type="submit" class="button" [disabled]="saving()">
-            @if (saving()) {
-              Guardando…
-            } @else if (isEdit) {
-              Guardar cambios
-            } @else {
-              Guardar perfil
-            }
-          </button>
-          <a routerLink="/perfiles">Cancelar</a>
-        </div>
-      </form>
-    }
-  }
+            @let sections = form.controls.sections;
+            @let sectionsInvalid = sections.invalid && sections.touched;
+            <fieldset class="mb-4" [attr.aria-invalid]="sectionsInvalid" aria-describedby="sections-error">
+              <legend class="form-label fs-6">Secciones a las que da acceso</legend>
+              <div class="border rounded p-3" [class.border-danger]="sectionsInvalid">
+                @for (section of sectionCatalog(); track section.key) {
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" [id]="'section-' + section.key" [value]="section.key"
+                      [checked]="isSelected(section.key)" (change)="toggleSection(section.key, $event)" />
+                    <label class="form-check-label" [for]="'section-' + section.key">{{ section.name }}</label>
+                  </div>
+                }
+              </div>
+              @if (sectionsInvalid) {
+                <div id="sections-error" class="invalid-feedback d-block">
+                  @if (sections.hasError('server')) {
+                    {{ sections.getError('server') }}
+                  } @else {
+                    Selecciona al menos una sección.
+                  }
+                </div>
+              }
+            </fieldset>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="saving()">
+                @if (saving()) {
+                  Guardando…
+                } @else if (isEdit) {
+                  Guardar cambios
+                } @else {
+                  Guardar perfil
+                }
+              </button>
+              <a class="btn btn-outline-secondary" routerLink="/perfiles">Cancelar</a>
+            </div>
+          </form>
+        }
+      }
+    </div>
+  </div>
 </section>

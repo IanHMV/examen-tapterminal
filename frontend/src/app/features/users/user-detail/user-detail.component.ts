@@ -21,7 +21,6 @@ type DetailState = 'loading' | 'ready' | 'not-found' | 'error' | 'deleted';
   selector: 'app-user-detail',
   imports: [RouterLink, DatePipe, ConfirmDialogComponent],
   templateUrl: './user-detail.component.html',
-  styleUrl: './user-detail.component.scss',
 })
 export class UserDetailComponent {
   private readonly userService = inject(UserService);

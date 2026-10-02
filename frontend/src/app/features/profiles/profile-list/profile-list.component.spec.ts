@@ -78,7 +78,7 @@ describe('ProfileListComponent', () => {
 
     const dialog = screen().querySelector('app-confirm-dialog dialog') as HTMLDialogElement;
     expect(dialog.textContent).toContain('PRF-0001');
-    (dialog.querySelector('.button--danger') as HTMLButtonElement).click();
+    (dialog.querySelector('.btn-danger') as HTMLButtonElement).click();
 
     const request = httpTesting.expectOne(`${profilesUrl}/PRF-0001`);
     expect(request.request.method).toBe('DELETE');
@@ -92,7 +92,7 @@ describe('ProfileListComponent', () => {
 
   it('si el perfil está asignado a usuarios (409), muestra el motivo y no lo quita de la tabla', () => {
     clickOnFirstRow('Eliminar');
-    (screen().querySelector('app-confirm-dialog .button--danger') as HTMLButtonElement).click();
+    (screen().querySelector('app-confirm-dialog .btn-danger') as HTMLButtonElement).click();
 
     httpTesting.expectOne(`${profilesUrl}/PRF-0001`).flush(
       { message: 'No se puede eliminar: el perfil está asignado a 2 usuario(s).' },

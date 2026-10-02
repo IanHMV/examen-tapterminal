@@ -45,7 +45,7 @@ describe('AuditLogDetailDialogComponent', () => {
       const [field, before, after] = Array.from(tr.querySelectorAll('th, td')).map(
         (cell) => cell.textContent?.replace('cambió', '').replace(/\s+/g, ' ').trim() ?? '',
       );
-      return [field, before, after, tr.classList.contains('audit-detail__row--changed')];
+      return [field, before, after, tr.classList.contains('table-warning')];
     });
   }
 
@@ -59,7 +59,7 @@ describe('AuditLogDetailDialogComponent', () => {
       ['Marca', '3M', '3M', false],
       ['Precio', '289.00', '310.00', true],
     ]);
-    expect(dialogElement().querySelectorAll('.audit-detail__badge').length).toBe(1);
+    expect(dialogElement().querySelectorAll('.badge').length).toBe(1);
   });
 
   it('muestra fecha (DD/MM/YYYY HH:MM), usuario e IP', () => {

@@ -1,65 +1,69 @@
 <section>
-  <header class="page-header">
-    <h2>Usuarios</h2>
-    <div class="page-header__actions">
+  <header class="page-header d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="h4 mb-0">Usuarios</h2>
+    <div class="d-flex flex-wrap align-items-start gap-2">
       <app-export-buttons resource="users" />
-      <a class="button" routerLink="/usuarios/nuevo">Nuevo usuario</a>
+      <a class="btn btn-primary btn-sm" routerLink="/usuarios/nuevo">Nuevo usuario</a>
     </div>
   </header>
 
   @if (notice(); as message) {
-    <p class="alert alert--success" role="status">{{ message }}</p>
+    <div class="alert alert-success" role="status">{{ message }}</div>
   }
 
   @if (deleteError(); as message) {
-    <p class="alert alert--error" role="alert">{{ message }}</p>
+    <div class="alert alert-danger" role="alert">{{ message }}</div>
   }
 
   @switch (state()) {
     @case ('loading') {
-      <p>Cargando usuarios…</p>
+      <p class="text-body-secondary">Cargando usuarios…</p>
     }
     @case ('error') {
-      <p class="alert alert--error" role="alert">No se pudo cargar el listado. Intenta de nuevo.</p>
+      <div class="alert alert-danger" role="alert">No se pudo cargar el listado. Intenta de nuevo.</div>
     }
     @case ('ready') {
       @if (result(); as page) {
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Código</th>
-              <th scope="col">Usuario</th>
-              <th scope="col">Nombre</th>
-              <th scope="col">Fecha de creación</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of page.data; track user.id) {
-              <tr>
-                <td>{{ user.code }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.name }}</td>
-                <td>{{ user.created_at | date: dateTimeFormat }}</td>
-                <td class="table__actions">
-                  <a [routerLink]="['/usuarios', user.code]">Ver</a>
-                  <a [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
-                  <!-- Nadie puede eliminarse a sí mismo (la API también lo impide). -->
-                  @if (user.code !== currentUserCode()) {
-                    <button type="button" class="link-button link-button--danger" [disabled]="deleting()"
-                      (click)="askDelete(user)">
-                      Eliminar
-                    </button>
-                  }
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="5">No hay usuarios en esta página.</td>
-              </tr>
-            }
-          </tbody>
-        </table>
+        <div class="card shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">Código</th>
+                  <th scope="col">Usuario</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Fecha de creación</th>
+                  <th scope="col" class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of page.data; track user.id) {
+                  <tr>
+                    <td class="text-nowrap fw-medium">{{ user.code }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.name }}</td>
+                    <td class="text-nowrap">{{ user.created_at | date: dateTimeFormat }}</td>
+                    <td class="table__actions text-end text-nowrap">
+                      <a class="btn btn-sm btn-outline-primary" [routerLink]="['/usuarios', user.code]">Ver</a>
+                      <a class="btn btn-sm btn-outline-secondary ms-1" [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
+                      <!-- Nadie puede eliminarse a sí mismo (la API también lo impide). -->
+                      @if (user.code !== currentUserCode()) {
+                        <button type="button" class="btn btn-sm btn-outline-danger ms-1" [disabled]="deleting()"
+                          (click)="askDelete(user)">
+                          Eliminar
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="text-center text-body-secondary py-4">No hay usuarios en esta página.</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         <app-pagination [page]="page" itemsLabel="usuarios" />
       }
@@ -70,7 +74,7 @@
   <app-confirm-dialog title="¿Eliminar usuario?" confirmLabel="Eliminar" (confirmed)="deletePending()">
     @if (pendingDelete(); as user) {
       <p>Se eliminará <strong>{{ user.code }}</strong> · {{ user.email }}, con su foto.</p>
-      <p>Esta acción no se puede deshacer.</p>
+      <p class="mb-0">Esta acción no se puede deshacer.</p>
     }
   </app-confirm-dialog>
 </section>

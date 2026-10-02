@@ -14,12 +14,15 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  // Solo a nuestra API: el token nunca debe viajar a otros dominios.
+  // Solo a nuestra API: el token nunca debe viajar a otros dominios. Tampoco reemplaza un
+  // Authorization que la petición ya traiga (el Basic del inicio de sesión).
   const isApiRequest = request.url.startsWith(environment.apiUrl);
   const token = auth.token();
 
   const authorized =
-    isApiRequest && token ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : request;
+    isApiRequest && token && !request.headers.has('Authorization')
+      ? request.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+      : request;
 
   return next(authorized).pipe(
     catchError((error: HttpErrorResponse) => {

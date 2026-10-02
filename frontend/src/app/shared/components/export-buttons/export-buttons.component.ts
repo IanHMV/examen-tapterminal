@@ -9,7 +9,6 @@ import { ExportFormat, ExportService } from '../../../core/services/export.servi
 @Component({
   selector: 'app-export-buttons',
   templateUrl: './export-buttons.component.html',
-  styleUrl: './export-buttons.component.scss',
 })
 export class ExportButtonsComponent {
   private readonly exportService = inject(ExportService);

@@ -82,7 +82,7 @@ describe('UserFormComponent', () => {
     }
 
     it('muestra una casilla por cada perfil', () => {
-      const labels = Array.from(screen().querySelectorAll('.checkbox')).map((label) => label.textContent?.trim());
+      const labels = Array.from(screen().querySelectorAll('.form-check')).map((label) => label.textContent?.trim());
 
       expect(labels).toEqual(['Administrador', 'Capturista de productos']);
     });
@@ -131,9 +131,9 @@ describe('UserFormComponent', () => {
       expect((body.get('photo') as File).name).toBe('foto.png');
       request.flush({ data: buildUser() }, { status: 201, statusText: 'Created' });
 
-      expect(screen().querySelector('.alert--success')?.textContent).toContain('Se creó el usuario');
-      expect(screen().querySelector('.alert--success')?.textContent).toContain('correo para que elija su contraseña');
-      expect(screen().querySelector('.alert--success a')?.getAttribute('href')).toBe('/usuarios/USR-0002');
+      expect(screen().querySelector('.alert-success')?.textContent).toContain('Se creó el usuario');
+      expect(screen().querySelector('.alert-success')?.textContent).toContain('correo para que elija su contraseña');
+      expect(screen().querySelector('.alert-success a')?.getAttribute('href')).toBe('/usuarios/USR-0002');
       expect(valueOf('name')).toBe('');
       expect(screen().querySelector('.user-form__photo img')).toBeNull();
     });
@@ -192,7 +192,7 @@ describe('UserFormComponent', () => {
       });
       request.flush({ data: buildUser({ phone: null }) });
 
-      expect(screen().querySelector('.alert--success')?.textContent).toContain('Se guardaron los cambios de');
+      expect(screen().querySelector('.alert-success')?.textContent).toContain('Se guardaron los cambios de');
     });
 
     it('con foto nueva, primero guarda los datos y después sube la foto', () => {
@@ -208,7 +208,7 @@ describe('UserFormComponent', () => {
       expect(((upload.request.body as FormData).get('photo') as File).name).toBe('nueva.webp');
       upload.flush({ data: buildUser() });
 
-      expect(screen().querySelector('.alert--success')).not.toBeNull();
+      expect(screen().querySelector('.alert-success')).not.toBeNull();
     });
   });
 });

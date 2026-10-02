@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "caa1524c-c4ec-5d6d-9fdf-344d9461259c",
     "name": "Examen TAP Terminal API",
-    "description": "API REST del sistema de productos, usuarios y perfiles (Laravel 11 + MongoDB).\n\n1. Elige el entorno \"Examen TAP · Local\" o \"Examen TAP · Producción\".\n2. Escribe tu correo y contraseña en las variables `email` y `password` del entorno.\n3. Ejecuta \"Sesión → Iniciar sesión\": el token se guarda solo y las demás peticiones lo envían como `Authorization: Bearer {{token}}`.\n\nCada petición trae ejemplos de respuesta (pestaña \"Examples\") y pruebas (pestaña \"Tests\"). Las altas guardan el código creado (productCode, profileCode, userCode) para ver, editar y eliminar ese mismo registro. Las exportaciones se descargan con \"Send and Download\".\n\nDocumentación interactiva: Swagger en /api/documentation.",
+    "description": "API REST del sistema de productos, usuarios y perfiles (Laravel 11 + MongoDB).\n\n1. Elige el entorno \"Examen TAP · Local\" o \"Examen TAP · Producción\".\n2. Escribe tu correo y contraseña en las variables `email` y `password` del entorno.\n3. Ejecuta \"Sesión → Iniciar sesión\": envía el correo y la contraseña en `Authorization: Basic` (nunca en el cuerpo) y guarda el token; las demás peticiones lo envían como `Authorization: Bearer {{token}}`.\n\nCada petición trae ejemplos de respuesta (pestaña \"Examples\") y pruebas (pestaña \"Tests\"). Las altas guardan el código creado (productCode, profileCode, userCode) para ver, editar y eliminar ese mismo registro. Las exportaciones se descargan con \"Send and Download\".\n\nDocumentación interactiva: Swagger en /api/documentation.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -175,10 +175,6 @@
               {
                 "key": "Accept",
                 "value": "application/json"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
               }
             ],
             "url": {
@@ -191,18 +187,21 @@
                 "login"
               ]
             },
-            "description": "Devuelve un token Bearer que vence en 8 horas. En Swagger, cópialo en \"Authorize\". Máximo 5 intentos por minuto para cada correo.",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
+            "description": "El correo y la contraseña van en el encabezado Authorization: Basic base64(correo:contraseña), nunca en el cuerpo (HTTPS cifra el encabezado en el camino). En Swagger: \"Authorize\" → basicAuth. Devuelve un token Bearer que vence en 8 horas; cópialo en \"Authorize\" → bearerAuth. Máximo 5 intentos por minuto para cada correo.",
             "auth": {
-              "type": "noauth"
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{email}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "string"
+                }
+              ]
             }
           },
           "response": [
@@ -213,10 +212,6 @@
                 "header": [
                   {
                     "key": "Accept",
-                    "value": "application/json"
-                  },
-                  {
-                    "key": "Content-Type",
                     "value": "application/json"
                   }
                 ],
@@ -230,17 +225,20 @@
                     "login"
                   ]
                 },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "auth": {
-                  "type": "noauth"
+                  "type": "basic",
+                  "basic": [
+                    {
+                      "key": "username",
+                      "value": "{{email}}",
+                      "type": "string"
+                    },
+                    {
+                      "key": "password",
+                      "value": "{{password}}",
+                      "type": "string"
+                    }
+                  ]
                 }
               },
               "status": "Sesión iniciada.",
@@ -262,10 +260,6 @@
                   {
                     "key": "Accept",
                     "value": "application/json"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
                   }
                 ],
                 "url": {
@@ -278,17 +272,20 @@
                     "login"
                   ]
                 },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "auth": {
-                  "type": "noauth"
+                  "type": "basic",
+                  "basic": [
+                    {
+                      "key": "username",
+                      "value": "{{email}}",
+                      "type": "string"
+                    },
+                    {
+                      "key": "password",
+                      "value": "{{password}}",
+                      "type": "string"
+                    }
+                  ]
                 }
               },
               "status": "Correo o contraseña incorrectos (el mensaje no dice cuál, a propósito).",
@@ -310,10 +307,6 @@
                   {
                     "key": "Accept",
                     "value": "application/json"
-                  },
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
                   }
                 ],
                 "url": {
@@ -326,17 +319,20 @@
                     "login"
                   ]
                 },
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "auth": {
-                  "type": "noauth"
+                  "type": "basic",
+                  "basic": [
+                    {
+                      "key": "username",
+                      "value": "{{email}}",
+                      "type": "string"
+                    },
+                    {
+                      "key": "password",
+                      "value": "{{password}}",
+                      "type": "string"
+                    }
+                  ]
                 }
               },
               "status": "Demasiados intentos. El encabezado Retry-After indica cuántos segundos esperar.",

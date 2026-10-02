@@ -58,7 +58,7 @@ describe('ProfileDetailDialogComponent', () => {
   it('"Cerrar" cierra la ventana', () => {
     openWith(buildProfile());
 
-    (dialogElement().querySelector('.button--secondary') as HTMLButtonElement).click();
+    (dialogElement().querySelector('.btn-outline-secondary') as HTMLButtonElement).click();
 
     expect(dialogElement().open).toBeFalse();
   });
