@@ -24,7 +24,8 @@ return [
 
     'allowed_headers' => ['Accept', 'Authorization', 'Content-Type', 'X-Requested-With'],
 
-    'exposed_headers' => [],
+    // Angular lee el nombre del archivo exportado (en desarrollo corre en otro origen).
+    'exposed_headers' => ['Content-Disposition'],
 
     'max_age' => 0,
 

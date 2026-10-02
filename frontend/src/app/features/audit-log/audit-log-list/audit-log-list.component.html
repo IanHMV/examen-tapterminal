@@ -1,6 +1,7 @@
 <section class="audit-log-list">
   <header class="page-header">
     <h2>Bitácora</h2>
+    <app-export-buttons resource="audit-logs" [filters]="exportFilters()" />
   </header>
   <p class="form-page__hint">
     Cada alta, edición y eliminación de productos, perfiles y usuarios queda registrada con el dato anterior y el actual.

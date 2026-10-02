@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ExportRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserPhotoRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -11,6 +13,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\WelcomeNotification;
 use App\Support\PhotoStorage;
+use App\Support\TableExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -98,6 +101,28 @@ class UserController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return UserResource::collection(User::query()->latest()->paginate(self::PER_PAGE));
+    }
+
+    #[OA\Get(
+        path: '/api/v1/users/export',
+        operationId: 'exportUsers',
+        summary: 'Exportar usuarios a Excel o PDF',
+        description: 'Todos los usuarios con sus perfiles, del más reciente al más antiguo (sin la foto). Las fechas salen como DD/MM/YYYY HH:MM.',
+        tags: ['Usuarios'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/ExportFormat'),
+            new OA\Parameter(ref: '#/components/parameters/ExportTimezone'),
+        ],
+        responses: [
+            new OA\Response(ref: '#/components/responses/ExportFile', response: 200),
+            new OA\Response(ref: '#/components/responses/ExportValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
+        ]
+    )]
+    public function export(ExportRequest $request, TableExporter $exporter): StreamedResponse|Response
+    {
+        return $exporter->download(new UsersExport(), $request->exportFormat(), $request->timezone());
     }
 
     #[OA\Post(

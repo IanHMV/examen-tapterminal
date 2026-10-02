@@ -11,6 +11,7 @@ import { User } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ExportButtonsComponent } from '../../../shared/components/export-buttons/export-buttons.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 type ListState = 'loading' | 'ready' | 'error';
@@ -20,7 +21,7 @@ type ListState = 'loading' | 'ready' | 'error';
  */
 @Component({
   selector: 'app-user-list',
-  imports: [RouterLink, DatePipe, ConfirmDialogComponent, PaginationComponent],
+  imports: [RouterLink, DatePipe, ConfirmDialogComponent, PaginationComponent, ExportButtonsComponent],
   templateUrl: './user-list.component.html',
 })
 export class UserListComponent {

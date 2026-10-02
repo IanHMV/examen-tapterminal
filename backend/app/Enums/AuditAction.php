@@ -17,4 +17,14 @@ enum AuditAction: string
     case Created = 'created';
     case Updated = 'updated';
     case Deleted = 'deleted';
+
+    /** Nombre que se muestra en las exportaciones. */
+    public function label(): string
+    {
+        return match ($this) {
+            self::Created => 'Alta',
+            self::Updated => 'Edición',
+            self::Deleted => 'Eliminación',
+        };
+    }
 }

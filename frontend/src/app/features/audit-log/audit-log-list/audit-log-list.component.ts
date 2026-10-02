@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,8 +8,9 @@ import { EMPTY, catchError, map, switchMap, tap } from 'rxjs';
 import { AUDIT_ACTION_LABELS, AUDIT_ENTITY_LABELS } from '../../../core/constants/audit-log';
 import { DATE_TIME_FORMAT } from '../../../core/constants/date-formats';
 import { Paginated } from '../../../core/models/api.model';
-import { AuditEntity, AuditLog } from '../../../core/models/audit-log.model';
+import { AuditEntity, AuditLog, AuditLogFilters } from '../../../core/models/audit-log.model';
 import { AuditLogService } from '../../../core/services/audit-log.service';
+import { ExportButtonsComponent } from '../../../shared/components/export-buttons/export-buttons.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { AuditLogDetailDialogComponent } from '../audit-log-detail-dialog/audit-log-detail-dialog.component';
 
@@ -28,7 +29,13 @@ function toEntity(value: string | null): AuditEntity | null {
  */
 @Component({
   selector: 'app-audit-log-list',
-  imports: [DatePipe, ReactiveFormsModule, PaginationComponent, AuditLogDetailDialogComponent],
+  imports: [
+    DatePipe,
+    ReactiveFormsModule,
+    PaginationComponent,
+    AuditLogDetailDialogComponent,
+    ExportButtonsComponent,
+  ],
   templateUrl: './audit-log-list.component.html',
   styleUrl: './audit-log-list.component.scss',
 })
@@ -47,6 +54,16 @@ export class AuditLogListComponent {
   protected readonly result = signal<Paginated<AuditLog> | null>(null);
   protected readonly selected = signal<AuditLog | null>(null);
 
+  /** Filtros de la URL (los que ya se aplicaron, no lo que se esté escribiendo). */
+  private readonly appliedFilters = signal<AuditLogFilters>({ entity: null, code: null });
+
+  /** La exportación trae los mismos registros que se ven filtrados. */
+  protected readonly exportFilters = computed(() => {
+    const { entity, code } = this.appliedFilters();
+
+    return { ...(entity && { entity }), ...(code && { code }) };
+  });
+
   protected readonly filters = this.fb.group({
     entity: this.fb.control<AuditEntity | ''>(''),
     code: this.fb.control(''),
@@ -63,6 +80,7 @@ export class AuditLogListComponent {
         tap(({ entity, code }) => {
           // El formulario refleja la URL (también al usar Atrás y Adelante).
           this.filters.setValue({ entity: entity ?? '', code: code ?? '' });
+          this.appliedFilters.set({ entity, code });
           this.state.set('loading');
         }),
         // switchMap cancela la petición anterior si el usuario cambia de filtro o de página rápido.

@@ -10,6 +10,7 @@ import { Paginated } from '../../../core/models/api.model';
 import { Profile } from '../../../core/models/profile.model';
 import { ProfileService } from '../../../core/services/profile.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ExportButtonsComponent } from '../../../shared/components/export-buttons/export-buttons.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ProfileDetailDialogComponent } from '../profile-detail-dialog/profile-detail-dialog.component';
 
@@ -21,7 +22,14 @@ type ListState = 'loading' | 'ready' | 'error';
  */
 @Component({
   selector: 'app-profile-list',
-  imports: [RouterLink, DatePipe, ConfirmDialogComponent, PaginationComponent, ProfileDetailDialogComponent],
+  imports: [
+    RouterLink,
+    DatePipe,
+    ConfirmDialogComponent,
+    PaginationComponent,
+    ProfileDetailDialogComponent,
+    ExportButtonsComponent,
+  ],
   templateUrl: './profile-list.component.html',
 })
 export class ProfileListComponent {

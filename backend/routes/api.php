@@ -40,7 +40,9 @@ Route::prefix('v1')->name('v1.')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
         // Cada grupo exige su sección; sin ella, 403 (App\Http\Middleware\EnsureUserHasSection).
+        // Las exportaciones van antes de apiResource: si no, "export" se tomaría como un código.
         Route::middleware('section:products')->group(function () {
+            Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
             Route::apiResource('products', ProductController::class);
         });
 
@@ -52,16 +54,19 @@ Route::prefix('v1')->name('v1.')->group(function () {
 
         Route::middleware('section:profiles')->group(function () {
             Route::get('/sections', SectionController::class)->name('sections.index');
+            Route::get('/profiles/export', [ProfileController::class, 'export'])->name('profiles.export');
             Route::apiResource('profiles', ProfileController::class);
         });
 
         Route::middleware('section:users')->group(function () {
+            Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
             Route::apiResource('users', UserController::class);
             Route::post('/users/{user}/photo', [UserController::class, 'updatePhoto'])->name('users.photo.update');
         });
 
         Route::middleware('section:audit_log')->group(function () {
-            Route::get('/audit-logs', AuditLogController::class)->name('audit-logs.index');
+            Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+            Route::get('/audit-logs/export', [AuditLogController::class, 'export'])->name('audit-logs.export');
         });
     });
 });

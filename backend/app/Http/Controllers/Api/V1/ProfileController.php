@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exports\ProfilesExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ExportRequest;
 use App\Http\Requests\StoreProfileRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\ProfileResource;
 use App\Models\Profile;
 use App\Models\User;
+use App\Support\TableExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Perfiles de usuario y las secciones a las que dan acceso.
@@ -81,6 +85,28 @@ class ProfileController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return ProfileResource::collection(Profile::query()->latest()->paginate(self::PER_PAGE));
+    }
+
+    #[OA\Get(
+        path: '/api/v1/profiles/export',
+        operationId: 'exportProfiles',
+        summary: 'Exportar perfiles a Excel o PDF',
+        description: 'Todos los perfiles con sus secciones, del más reciente al más antiguo. Las fechas salen como DD/MM/YYYY HH:MM.',
+        tags: ['Perfiles'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/ExportFormat'),
+            new OA\Parameter(ref: '#/components/parameters/ExportTimezone'),
+        ],
+        responses: [
+            new OA\Response(ref: '#/components/responses/ExportFile', response: 200),
+            new OA\Response(ref: '#/components/responses/ExportValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
+        ]
+    )]
+    public function export(ExportRequest $request, TableExporter $exporter): StreamedResponse|Response
+    {
+        return $exporter->download(new ProfilesExport(), $request->exportFormat(), $request->timezone());
     }
 
     #[OA\Get(
