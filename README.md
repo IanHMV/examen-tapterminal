@@ -41,6 +41,22 @@ Composer 2.10 bloquea versiones con avisos conocidos, así que se ignoran **solo
 afectan a la última 11.x (`backend/composer.json` → `config.policy.advisories.ignore-id`).
 Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 
+### Autenticación (Laravel Sanctum)
+
+- **Tokens Bearer, no cookies:** `POST /api/v1/auth/login` devuelve un token que se envía en
+  `Authorization: Bearer <token>`. La API no guarda sesiones y el mismo token sirve en Swagger
+  ("Authorize") y Postman. Todas las rutas lo exigen, salvo el healthcheck y el login.
+- **Vencimiento automático:** el token dura 8 horas (`SANCTUM_EXPIRATION`). Un índice TTL de MongoDB
+  sobre `expires_at` borra los tokens vencidos sin tareas programadas. Cerrar sesión revoca el token.
+- **Login difícil de atacar:** máximo 5 intentos por minuto por correo e IP (429), el mismo mensaje
+  para correo inexistente o contraseña incorrecta, y la contraseña se compara siempre (aunque el
+  correo no exista) para que el tiempo de respuesta no revele qué correos están registrados.
+- **Fotos con URL firmada:** `<img>` no puede enviar el token, así que la API entrega la foto con una
+  URL firmada que vence en 1 a 2 horas. Sin la firma, o con la URL alterada, responde 403.
+- **En Angular:** el token se guarda en `localStorage` y un interceptor lo agrega **solo** a las
+  peticiones a la API. Si la API responde 401, se cierra la sesión y se vuelve al login recordando la
+  pantalla (solo se aceptan rutas internas como destino).
+
 ### Modelo de datos en MongoDB
 
 Los nombres van en inglés en el código y en la base de datos (`products`, `price`), y en español en la interfaz.
@@ -151,3 +167,4 @@ Registro del avance del proyecto
 | TICK-16 | 2026-10-01 | Eliminación de productos: `DELETE /api/v1/products/{code}` y diálogo de confirmación reutilizable. | [#17](https://github.com/IanHMV/examen-tapterminal/pull/17) |
 | TICK-17 | 2026-10-01 | Perfiles y secciones: CRUD completo, detalle en ventana modal, nombre único sin distinguir mayúsculas y estilos compartidos. | [#18](https://github.com/IanHMV/examen-tapterminal/pull/18) |
 | TICK-18 | 2026-10-01 | Usuarios: CRUD completo, foto de perfil en GridFS, teléfono con lada, perfiles asignados y administrador inicial. | [#19](https://github.com/IanHMV/examen-tapterminal/pull/19) |
+| TICK-19 | 2026-10-02 | Inicio y cierre de sesión con Laravel Sanctum: tokens con vencimiento (TTL), límite de intentos, rutas protegidas y fotos con URL firmada. | [#20](https://github.com/IanHMV/examen-tapterminal/pull/20) |

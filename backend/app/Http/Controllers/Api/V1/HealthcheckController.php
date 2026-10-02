@@ -51,6 +51,7 @@ class HealthcheckController extends Controller
         operationId: 'healthcheck',
         summary: 'Estado de la API',
         description: 'Indica si la API y su base de datos están en funcionamiento. No requiere autenticación.',
+        security: [],
         tags: ['Sistema'],
         responses: [
             new OA\Response(

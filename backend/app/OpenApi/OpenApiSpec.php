@@ -16,9 +16,19 @@ use OpenApi\Attributes as OA;
 #[OA\Info(
     version: '1.0.0',
     title: 'Examen TAP Terminal API',
-    description: 'API REST del sistema de gestión de productos, usuarios y perfiles.',
+    description: 'API REST del sistema de gestión de productos, usuarios y perfiles. Todas las rutas, salvo '
+        . 'el healthcheck y el inicio de sesión, requieren un token: inicia sesión en POST /api/v1/auth/login '
+        . 'y pégalo en "Authorize".',
 )]
 #[OA\Server(url: L5_SWAGGER_CONST_HOST, description: 'Servidor actual')]
+#[OA\SecurityScheme(
+    securityScheme: 'bearerAuth',
+    type: 'http',
+    description: 'Token de POST /api/v1/auth/login (sin la palabra "Bearer").',
+    scheme: 'bearer'
+)]
+#[OA\OpenApi(security: [['bearerAuth' => []]])]
+#[OA\Tag(name: 'Sesión', description: 'Inicio y cierre de sesión con tokens Bearer (Laravel Sanctum)')]
 #[OA\Tag(name: 'Sistema', description: 'Estado y salud del servicio')]
 #[OA\Tag(name: 'Productos', description: 'Catálogo de productos')]
 #[OA\Tag(name: 'Perfiles', description: 'Perfiles de usuario y las secciones a las que dan acceso')]
@@ -76,6 +86,15 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'total', type: 'integer', example: 11),
     ],
     type: 'object'
+)]
+#[OA\Response(
+    response: 'Unauthenticated',
+    description: 'Falta el token, es inválido o ya venció.',
+    content: new OA\JsonContent(
+        properties: [
+            new OA\Property(property: 'message', type: 'string', example: 'No has iniciado sesión o tu sesión venció.'),
+        ]
+    )
 )]
 #[OA\Response(
     response: 'NotFound',
