@@ -59,3 +59,4 @@ Registro del avance del proyecto
 | TICK-09 | 2026-10-01 | Imágenes de producción en varias etapas, healthchecks y reinicio automático de contenedores. | [#10](https://github.com/IanHMV/examen-tapterminal/pull/10) |
 | TICK-10 | 2026-10-01 | Aplicación servida bajo la subruta `/examen-tapterminal` detrás de proxies HTTPS. | [#11](https://github.com/IanHMV/examen-tapterminal/pull/11) |
 | TICK-11 | 2026-10-01 | Despliegue en producción: `https://ianmartinez.dev/examen-tapterminal`. | [#12](https://github.com/IanHMV/examen-tapterminal/pull/12) |
+| TICK-12 | 2026-10-01 | Modelo `Product` en MongoDB: código autogenerado atómico (`PRD-0001`), precio `Decimal128`, índices y datos iniciales. | [#13](https://github.com/IanHMV/examen-tapterminal/pull/13) |
