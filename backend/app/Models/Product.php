@@ -36,6 +36,15 @@ class Product extends Model
         ];
     }
 
+    /**
+     * Las rutas buscan el producto por su código (/products/PRD-0001):
+     * es único, tiene índice y nunca cambia.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'code';
+    }
+
     /** Prefijo del código autogenerado: PRD-0001. */
     protected static function codePrefix(): string
     {

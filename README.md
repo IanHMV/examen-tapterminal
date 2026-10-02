@@ -64,6 +64,8 @@ Los nombres van en inglés en el código y en la base de datos (`products`, `pri
   simultáneas, "contar + 1" repitió 19 códigos y el contador ninguno. El índice único de `code` es
   una segunda barrera, y los códigos no se reutilizan aunque se borre un producto.
 - **`code` fuera de `$fillable`:** el cliente no puede asignarlo ni falsificarlo.
+- **Búsqueda por código:** el detalle usa el código en la URL (`/api/v1/products/PRD-0001`), que es
+  único, inmutable y tiene índice. El listado ordena por `created_at` (también con índice).
 - **Precio en `Decimal128`:** decimal exacto, sin los errores de redondeo de `float`. La API lo
   entrega como texto con 2 decimales (`"289.00"`).
 - **"Precio máximo 3 dígitos"** se interpreta como hasta 3 dígitos enteros y 2 decimales
@@ -88,3 +90,4 @@ Registro del avance del proyecto
 | TICK-11 | 2026-10-01 | Despliegue en producción: `https://ianmartinez.dev/examen-tapterminal`. | [#12](https://github.com/IanHMV/examen-tapterminal/pull/12) |
 | TICK-12 | 2026-10-01 | Modelo `Product` en MongoDB: código autogenerado atómico (`PRD-0001`), precio `Decimal128`, índices y datos iniciales. | [#13](https://github.com/IanHMV/examen-tapterminal/pull/13) |
 | TICK-13 | 2026-10-01 | Alta de productos: `POST /api/v1/products`, validación en Laravel y Angular, y mensajes en español. | [#14](https://github.com/IanHMV/examen-tapterminal/pull/14) |
+| TICK-14 | 2026-10-01 | Listado paginado y detalle de productos (`GET /api/v1/products`, `GET /api/v1/products/{code}`), publicado en producción. | [#15](https://github.com/IanHMV/examen-tapterminal/pull/15) |

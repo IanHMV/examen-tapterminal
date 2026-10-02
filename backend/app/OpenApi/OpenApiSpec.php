@@ -38,6 +38,52 @@ use OpenApi\Attributes as OA;
     ],
     type: 'object'
 )]
+#[OA\Schema(
+    schema: 'PaginationLinks',
+    description: 'URL de las páginas vecinas (null si no existen).',
+    properties: [
+        new OA\Property(
+            property: 'first',
+            type: 'string',
+            nullable: true,
+            example: 'http://localhost:8000/api/v1/products?page=1',
+            description: 'Primera página.'
+        ),
+        new OA\Property(property: 'last', type: 'string', nullable: true),
+        new OA\Property(property: 'prev', type: 'string', nullable: true),
+        new OA\Property(property: 'next', type: 'string', nullable: true),
+    ],
+    type: 'object'
+)]
+#[OA\Schema(
+    schema: 'PaginationMeta',
+    description: 'Datos de la página actual.',
+    properties: [
+        new OA\Property(property: 'current_page', type: 'integer', example: 1, description: 'Página actual.'),
+        new OA\Property(property: 'from', type: 'integer', nullable: true, example: 1),
+        new OA\Property(property: 'last_page', type: 'integer', example: 2),
+        new OA\Property(
+            property: 'links',
+            type: 'array',
+            items: new OA\Items(type: 'object'),
+            description: 'Enlaces numerados para paginadores HTML (la app no los usa).'
+        ),
+        new OA\Property(property: 'path', type: 'string', example: 'http://localhost:8000/api/v1/products'),
+        new OA\Property(property: 'per_page', type: 'integer', example: 10),
+        new OA\Property(property: 'to', type: 'integer', nullable: true, example: 10),
+        new OA\Property(property: 'total', type: 'integer', example: 11),
+    ],
+    type: 'object'
+)]
+#[OA\Response(
+    response: 'NotFound',
+    description: 'El recurso no existe.',
+    content: new OA\JsonContent(
+        properties: [
+            new OA\Property(property: 'message', type: 'string', example: 'Recurso no encontrado.'),
+        ]
+    )
+)]
 class OpenApiSpec
 {
 }
