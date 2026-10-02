@@ -37,4 +37,13 @@ body {
     opacity: 0.6;
     cursor: wait;
   }
+
+  &--secondary {
+    color: #111827;
+    background: #e5e7eb;
+  }
+
+  &--danger {
+    background: #b91c1c;
+  }
 }

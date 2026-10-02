@@ -11,6 +11,9 @@
     @case ('error') {
       <p class="alert alert--error" role="alert">No se pudo cargar el producto. Intenta de nuevo.</p>
     }
+    @case ('deleted') {
+      <p class="alert alert--success" role="status">Se eliminó el producto {{ product()?.code }}.</p>
+    }
     @case ('ready') {
       @if (product(); as product) {
         <h2>{{ product.name }}</h2>
@@ -26,8 +29,25 @@
           <dt>Última modificación</dt>
           <dd>{{ product.updated_at | date: dateTimeFormat }}</dd>
         </dl>
-        <a class="button product-detail__edit" [routerLink]="['/productos', product.code, 'editar']">Editar</a>
+
+        @if (deleteError(); as message) {
+          <p class="alert alert--error" role="alert">{{ message }}</p>
+        }
+
+        <div class="product-detail__actions">
+          <a class="button" [routerLink]="['/productos', product.code, 'editar']">Editar</a>
+          <button type="button" class="button button--danger" [disabled]="deleting()" (click)="askDelete()">
+            {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        </div>
       }
     }
   }
+
+  <app-confirm-dialog title="¿Eliminar producto?" confirmLabel="Eliminar" (confirmed)="deleteProduct()">
+    @if (product(); as product) {
+      <p>Se eliminará <strong>{{ product.code }}</strong> · {{ product.name }}.</p>
+      <p>Esta acción no se puede deshacer.</p>
+    }
+  </app-confirm-dialog>
 </section>

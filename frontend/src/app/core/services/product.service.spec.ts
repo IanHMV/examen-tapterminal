@@ -55,7 +55,7 @@ describe('ProductService', () => {
     expect(request.request.url).toBe(`${baseUrl}/a%2Fb%3Fc`);
     request.flush({ data: buildProduct() });
   });
-
+  //Crear
   it('create() envía los datos con POST y devuelve el producto creado', () => {
     const product = buildProduct();
     const input = { name: product.name, brand: product.brand, price: 119 };
@@ -70,7 +70,7 @@ describe('ProductService', () => {
 
     expect(result).toEqual(product);
   });
-
+  //Actualizar
   it('update() envía los cambios con PUT al código del producto', () => {
     const product = buildProduct({ price: '129.50' });
     const input = { name: product.name, brand: product.brand, price: 129.5 };
@@ -84,5 +84,17 @@ describe('ProductService', () => {
     request.flush({ data: product });
 
     expect(result).toEqual(product);
+  });
+  //Borrar
+  it('delete() envía DELETE al código del producto', () => {
+    let completed = false;
+
+    service.delete('PRD-0003').subscribe({ complete: () => (completed = true) });
+
+    const request = httpTesting.expectOne(`${baseUrl}/PRD-0003`);
+    expect(request.request.method).toBe('DELETE');
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(completed).toBeTrue();
   });
 });

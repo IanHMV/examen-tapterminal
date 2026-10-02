@@ -29,8 +29,24 @@
     text-align: right;
   }
 
-  .table__actions a + a {
+  .table__actions > * + * {
     margin-left: 0.75rem;
+  }
+}
+
+// Botón con aspecto de enlace: es una acción (no navega), por eso es <button>.
+.table__delete {
+  padding: 0;
+  font: inherit;
+  color: #b91c1c;
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
   }
 }
 

@@ -4,6 +4,14 @@
     <a class="button" routerLink="/productos/nuevo">Nuevo producto</a>
   </header>
 
+  @if (notice(); as message) {
+    <p class="alert alert--success" role="status">{{ message }}</p>
+  }
+
+  @if (deleteError(); as message) {
+    <p class="alert alert--error" role="alert">{{ message }}</p>
+  }
+
   @switch (state()) {
     @case ('loading') {
       <p>Cargando productos…</p>
@@ -33,6 +41,9 @@
                 <td class="table__actions">
                   <a [routerLink]="['/productos', product.code]">Ver</a>
                   <a [routerLink]="['/productos', product.code, 'editar']">Editar</a>
+                  <button type="button" class="table__delete" [disabled]="deleting()" (click)="askDelete(product)">
+                    Eliminar
+                  </button>
                 </td>
               </tr>
             } @empty {
@@ -60,4 +71,12 @@
       }
     }
   }
+
+  <!-- Fuera del @switch: siempre existe, aunque la tabla se esté recargando. -->
+  <app-confirm-dialog title="¿Eliminar producto?" confirmLabel="Eliminar" (confirmed)="deletePending()">
+    @if (pendingDelete(); as product) {
+      <p>Se eliminará <strong>{{ product.code }}</strong> · {{ product.name }}.</p>
+      <p>Esta acción no se puede deshacer.</p>
+    }
+  </app-confirm-dialog>
 </section>

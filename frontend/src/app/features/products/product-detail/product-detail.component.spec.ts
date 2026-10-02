@@ -44,7 +44,7 @@ describe('ProductDetailComponent', () => {
     expect(details).toContain('Urrea');
     expect(details).toContain('$119.00');
     expect(details).toMatch(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/); // DD/MM/YYYY HH:MM
-    expect(screen().querySelector('.product-detail__edit')?.getAttribute('href')).toBe('/productos/PRD-0003/editar');
+    expect(screen().querySelector('.product-detail__actions a')?.getAttribute('href')).toBe('/productos/PRD-0003/editar');
   });
 
   it('avisa que el producto no existe cuando la API responde 404', async () => {
@@ -63,5 +63,42 @@ describe('ProductDetailComponent', () => {
       .flush(null, { status: 500, statusText: 'Internal Server Error' });
 
     expect(screen().querySelector('[role="alert"]')?.textContent).toContain('No se pudo cargar el producto');
+  });
+
+  describe('eliminar', () => {
+    beforeEach(async () => {
+      await harness.navigateByUrl('/productos/PRD-0003', ProductDetailComponent);
+      httpTesting.expectOne(`${productsUrl}/PRD-0003`).flush({ data: buildProduct() });
+    });
+
+    /** Pulsa "Eliminar" y confirma en el diálogo. */
+    function deleteAndConfirm(): void {
+      (screen().querySelector('.product-detail__actions .button--danger') as HTMLButtonElement).click();
+      const dialog = screen().querySelector('dialog') as HTMLDialogElement;
+      expect(dialog.open).toBeTrue();
+      (dialog.querySelector('.button--danger') as HTMLButtonElement).click();
+    }
+
+    it('Elimina tras confirmar y avisa que se eliminó', () => {
+      deleteAndConfirm();
+
+      const request = httpTesting.expectOne(`${productsUrl}/PRD-0003`);
+      expect(request.request.method).toBe('DELETE');
+      request.flush(null, { status: 204, statusText: 'No Content' });
+
+      expect(screen().querySelector('[role="status"]')?.textContent).toContain('Se eliminó el producto PRD-0003.');
+      expect(screen().querySelector('.details')).toBeNull();
+    });
+
+    it('si falla, muestra el error y conserva los datos en pantalla', () => {
+      deleteAndConfirm();
+
+      httpTesting
+        .expectOne(`${productsUrl}/PRD-0003`)
+        .flush(null, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(screen().querySelector('[role="alert"]')?.textContent).toContain('No se pudo eliminar el producto');
+      expect(screen().querySelector('.details')).not.toBeNull();
+    });
   });
 });
