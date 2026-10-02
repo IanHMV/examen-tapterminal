@@ -11,7 +11,6 @@ let nextId = 0;
 @Component({
   selector: 'app-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
-  styleUrl: './confirm-dialog.component.scss',
 })
 export class ConfirmDialogComponent {
   readonly title = input.required<string>();

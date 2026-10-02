@@ -21,6 +21,7 @@ use OpenApi\Attributes as OA;
 #[OA\Server(url: L5_SWAGGER_CONST_HOST, description: 'Servidor actual')]
 #[OA\Tag(name: 'Sistema', description: 'Estado y salud del servicio')]
 #[OA\Tag(name: 'Productos', description: 'Catálogo de productos')]
+#[OA\Tag(name: 'Perfiles', description: 'Perfiles de usuario y las secciones a las que dan acceso')]
 #[OA\Schema(
     schema: 'ValidationError',
     description: 'Respuesta 422 de Laravel: un mensaje general y los errores de cada campo.',
@@ -81,6 +82,15 @@ use OpenApi\Attributes as OA;
     content: new OA\JsonContent(
         properties: [
             new OA\Property(property: 'message', type: 'string', example: 'Recurso no encontrado.'),
+        ]
+    )
+)]
+#[OA\Response(
+    response: 'Conflict',
+    description: 'Otro registro con el mismo dato único se guardó al mismo tiempo.',
+    content: new OA\JsonContent(
+        properties: [
+            new OA\Property(property: 'message', type: 'string', example: 'El registro ya existe.'),
         ]
     )
 )]

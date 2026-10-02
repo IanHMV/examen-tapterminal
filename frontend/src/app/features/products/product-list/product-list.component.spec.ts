@@ -5,7 +5,8 @@ import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 
 import { environment } from '../../../../environments/environment';
-import { buildPage, buildProduct } from '../../../testing/product.fixtures';
+import { buildPage } from '../../../testing/pagination.fixtures';
+import { buildProduct } from '../../../testing/product.fixtures';
 import { ProductListComponent } from './product-list.component';
 
 describe('ProductListComponent', () => {
@@ -97,7 +98,7 @@ describe('ProductListComponent', () => {
 
     /** Pulsa "Eliminar" en la primera fila y devuelve el diálogo de confirmación. */
     function clickDeleteOnFirstRow(): HTMLDialogElement {
-      (screen().querySelector('.table__delete') as HTMLButtonElement).click();
+      (screen().querySelector('.link-button--danger') as HTMLButtonElement).click();
       return screen().querySelector('dialog') as HTMLDialogElement;
     }
 

@@ -73,6 +73,28 @@ Los nombres van en inglés en el código y en la base de datos (`products`, `pri
 - **"Precio máximo 3 dígitos"** se interpreta como hasta 3 dígitos enteros y 2 decimales
   (de 0.01 a 999.99). Laravel (`StoreProductRequest`) y Angular aplican la misma regla.
 
+```js
+// Colección "profiles"
+{
+  _id: ObjectId("66fb6a1e9c1d4b0012a3b4c6"),
+  code: "PRF-0001",                                       // índice único
+  name: "Administrador",                                  // índice único sin distinguir mayúsculas
+  sections: ["products", "users", "profiles", "audit_log"],
+  created_at: ISODate("2026-10-01T18:30:00Z"),
+  updated_at: ISODate("2026-10-01T18:30:00Z")
+}
+```
+
+- **Secciones embebidas en el perfil:**  siempre se leen junto con el perfil y no existen
+  por sí solas, así que se guardan como un arreglo de claves dentro del mismo documento (sin
+  "tabla intermedia"). El catálogo es un enum de PHP (`App\Enums\Section`) porque cada sección
+  corresponde a pantallas reales; la API lo expone en `GET /api/v1/sections`.
+- **Nombre de perfil único sin distinguir mayúsculas:** índice con *collation*
+  `{ locale: "es", strength: 2 }` y la validación `unique` de laravel-mongodb (registrada en
+  `bootstrap/providers.php`), que aplican la misma regla. Si dos altas simultáneas pasan la
+  validación, el índice rechaza la segunda y la API responde 409 en lugar de 500. En una prueba
+  con 12 altas simultáneas del mismo nombre se creó exactamente un perfil.
+
 ## Bitácora de desarrollo
 Registro del avance del proyecto
 > No confundir con la **bitácora de cambios del sistema** (historial de datos anterior vs. actual)
@@ -95,3 +117,4 @@ Registro del avance del proyecto
 | TICK-14 | 2026-10-01 | Listado paginado y detalle de productos (`GET /api/v1/products`, `GET /api/v1/products/{code}`), publicado en producción. | [#15](https://github.com/IanHMV/examen-tapterminal/pull/15) |
 | TICK-15 | 2026-10-01 | Edición de productos: `PUT /api/v1/products/{code}` y el mismo formulario del alta en modo edición. | [#16](https://github.com/IanHMV/examen-tapterminal/pull/16) |
 | TICK-16 | 2026-10-01 | Eliminación de productos: `DELETE /api/v1/products/{code}` y diálogo de confirmación reutilizable. | [#17](https://github.com/IanHMV/examen-tapterminal/pull/17) |
+| TICK-17 | 2026-10-01 | Perfiles y secciones: CRUD completo, detalle en ventana modal, nombre único sin distinguir mayúsculas y estilos compartidos. | [#18](https://github.com/IanHMV/examen-tapterminal/pull/18) |

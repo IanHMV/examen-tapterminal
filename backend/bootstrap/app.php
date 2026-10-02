@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use MongoDB\Driver\Exception\BulkWriteException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -30,6 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json(['message' => 'Recurso no encontrado.'], 404);
+            }
+        });
+
+        // Un índice único de MongoDB rechazó el dato (11000 = clave duplicada). La validación
+        // ya lo evita; esto cubre dos peticiones simultáneas con el mismo dato: 409, no 500.
+        $exceptions->render(function (BulkWriteException $exception, Request $request) {
+            if ($request->is('api/*') && $exception->getCode() === 11000) {
+                return response()->json(['message' => 'El registro ya existe.'], 409);
             }
         });
     })->create();

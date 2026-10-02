@@ -1,9 +1,7 @@
-<dialog #dialog class="confirm-dialog" [attr.aria-labelledby]="titleId">
-  <h2 [id]="titleId" class="confirm-dialog__title">{{ title() }}</h2>
-  <div class="confirm-dialog__body">
-    <ng-content />
-  </div>
-  <div class="confirm-dialog__actions">
+<dialog #dialog class="dialog" [attr.aria-labelledby]="titleId">
+  <h2 [id]="titleId" class="dialog__title">{{ title() }}</h2>
+  <ng-content />
+  <div class="dialog__actions">
     <button type="button" class="button button--secondary" (click)="close()">Cancelar</button>
     <button type="button" class="button button--danger" (click)="confirm()">{{ confirmLabel() }}</button>
   </div>
