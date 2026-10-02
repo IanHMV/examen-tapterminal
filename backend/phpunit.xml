@@ -22,8 +22,10 @@
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
-        <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
-        <!-- <env name="DB_DATABASE" value=":memory:"/> -->
+        <!-- MongoDB desechable de las pruebas (servicio mongo-test de docker-compose.yml): nunca la de desarrollo.
+             En CI, la variable de entorno MONGODB_URI tiene prioridad sobre este valor. -->
+        <env name="MONGODB_URI" value="mongodb://mongo-test:27017"/>
+        <env name="MONGODB_DATABASE" value="examen_tapterminal_test"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

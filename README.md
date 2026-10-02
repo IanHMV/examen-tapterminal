@@ -138,6 +138,30 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 - **Dependencias** (las versiones más recientes compatibles con PHP 8.2, sin avisos de seguridad):
   `openspout/openspout` 4.28 y `barryvdh/laravel-dompdf` 3.1 (dompdf 3.1).
 
+### Pruebas automáticas
+
+| Parte | Herramienta | Pruebas | Comando |
+|---|---|---|---|
+| API | PHPUnit 11 | 38 | `docker compose exec api php artisan test` |
+| Angular | Jasmine + Karma | 142 | `cd frontend && npm test -- --watch=false --browsers=ChromeHeadless` |
+
+- **La API se prueba de punta a punta:** cada prueba hace peticiones HTTP reales a Laravel contra un
+  MongoDB real, sin simular la base de datos. Cubren las reglas del examen y los errores que ya ocurrieron
+  una vez (regresiones):
+  - 401 en JSON aunque la petición no pida JSON;
+  - 403 sin la sección y 409 al borrarse a sí mismo o al borrar un perfil asignado;
+  - clave duplicada de MongoDB → 409;
+  - nombre de perfil y correo únicos sin distinguir mayúsculas;
+  - foto con URL firmada y límite de intentos del login;
+  - recuperación de contraseña, bitácora (sin contraseñas, de solo lectura) y exportaciones con fechas
+    en hora local.
+- **Base de datos propia:** el servicio `mongo-test` de Docker guarda los datos en memoria y
+  `phpunit.xml` apunta a la base `examen_tapterminal_test`. Antes de cada prueba se vacían los documentos
+  (MongoDB sin réplicas no tiene transacciones, así que no sirve `RefreshDatabase` de Laravel), y una
+  protección detiene las pruebas si la base no termina en `_test`.
+- **Cada prueba se comprobó con una mutación:** se rompió a propósito el código que protege
+  (por ejemplo, quitar el arreglo del 401) y se verificó que al menos una prueba fallara.
+
 ### Modelo de datos en MongoDB
 
 Los nombres van en inglés en el código y en la base de datos (`products`, `price`), y en español en la interfaz.
@@ -290,3 +314,4 @@ Registro del avance del proyecto
 | TICK-21 | 2026-10-02 | Recuperación de contraseña y correo de bienvenida con enlace de un solo uso (60 min), Mailpit en desarrollo y Gmail en producción. | [#23](https://github.com/IanHMV/examen-tapterminal/pull/23) |
 | TICK-22 | 2026-10-02 | Bitácora del sistema: cada alta, edición y eliminación guarda el dato anterior y el actual; consulta con filtros y comparación campo por campo. | [#24](https://github.com/IanHMV/examen-tapterminal/pull/24) |
 | TICK-23 | 2026-10-02 | Exportación de cada listado a Excel y PDF desde la API (todos los registros, fechas DD/MM/YYYY HH:MM en la hora local) y botones en Angular. | [#25](https://github.com/IanHMV/examen-tapterminal/pull/25) |
+| TICK-24 | 2026-10-02 | Pruebas de la API con PHPUnit contra un MongoDB desechable: reglas del examen, seguridad y regresiones. | [#26](https://github.com/IanHMV/examen-tapterminal/pull/26) |
