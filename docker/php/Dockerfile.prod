@@ -41,6 +41,10 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint
 RUN chmod 755 /usr/local/bin/entrypoint
 
+# Carpeta personal en /tmp: www-data no puede escribir en /var/www
+# ("php artisan tinker" guarda ahí su configuración), igual que en desarrollo.
+ENV HOME=/tmp
+
 USER www-data
 
 ENTRYPOINT ["entrypoint"]

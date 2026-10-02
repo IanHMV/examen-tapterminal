@@ -1,21 +1,28 @@
-<header class="app-header">
-  <h1>Examen TAP Terminal</h1>
-  @if (auth.currentUser(); as user) {
-    <div class="app-header__bar">
-      <nav class="app-nav" aria-label="Principal">
-        @for (link of menu(); track link.key) {
-          <a [routerLink]="link.path" routerLinkActive="app-nav__link--active">{{ link.label }}</a>
-        }
+<header class="navbar navbar-expand navbar-dark bg-dark shadow-sm">
+  <div class="container flex-wrap gap-2">
+    <h1 class="navbar-brand fs-5 mb-0">Examen TAP Terminal</h1>
+    @if (auth.currentUser(); as user) {
+      <nav aria-label="Principal">
+        <ul class="navbar-nav app-nav">
+          @for (link of menu(); track link.key) {
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="link.path" routerLinkActive="active" ariaCurrentWhenActive="page">
+                {{ link.label }}
+              </a>
+            </li>
+          }
+        </ul>
       </nav>
-      <div class="app-session">
-        <span class="app-session__user">{{ user.name }} · {{ user.email }}</span>
-        <button type="button" class="link-button app-session__logout" (click)="logout()">Cerrar sesión</button>
+      <div class="app-session d-flex align-items-center gap-3 ms-auto">
+        <span class="app-session__user navbar-text small">{{ user.name }} · {{ user.email }}</span>
+        <button type="button" class="btn btn-outline-light btn-sm app-session__logout" (click)="logout()">
+          Cerrar sesión
+        </button>
       </div>
-    </div>
-  }
+    }
+  </div>
 </header>
 
-<main class="app-main">
-  <app-api-status />
+<main class="container py-4">
   <router-outlet />
 </main>

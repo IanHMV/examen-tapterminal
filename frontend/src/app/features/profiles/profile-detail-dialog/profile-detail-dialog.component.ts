@@ -12,7 +12,6 @@ import { Profile } from '../../../core/models/profile.model';
   selector: 'app-profile-detail-dialog',
   imports: [DatePipe],
   templateUrl: './profile-detail-dialog.component.html',
-  styleUrl: './profile-detail-dialog.component.scss',
 })
 export class ProfileDetailDialogComponent {
   /** Perfil a mostrar; ya trae sus secciones, no hace falta otra petición. */

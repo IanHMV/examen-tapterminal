@@ -19,7 +19,6 @@ type DetailState = 'loading' | 'ready' | 'not-found' | 'error' | 'deleted';
   selector: 'app-product-detail',
   imports: [RouterLink, CurrencyPipe, DatePipe, ConfirmDialogComponent],
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.scss',
 })
 export class ProductDetailComponent {
   private readonly productService = inject(ProductService);

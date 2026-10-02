@@ -17,7 +17,7 @@ class AuthTest extends TestCase
     {
         $user = $this->createUser([Section::Products]);
 
-        $response = $this->postJson('/api/v1/auth/login', ['email' => strtoupper($user->email), 'password' => self::PASSWORD]);
+        $response = $this->withBasicAuth(strtoupper($user->email), self::PASSWORD)->postJson('/api/v1/auth/login');
 
         $response->assertOk()
             ->assertJsonPath('token_type', 'Bearer')
@@ -34,24 +34,40 @@ class AuthTest extends TestCase
         $user = $this->createUser();
         $message = 'El correo o la contraseña no son correctos.';
 
-        $this->postJson('/api/v1/auth/login', ['email' => 'nadie@example.com', 'password' => self::PASSWORD])
+        $this->withBasicAuth('nadie@example.com', self::PASSWORD)->postJson('/api/v1/auth/login')
             ->assertStatus(422)
             ->assertJsonPath('errors.email.0', $message);
 
-        $this->postJson('/api/v1/auth/login', ['email' => $user->email, 'password' => 'otra-clave'])
+        $this->withBasicAuth($user->email, 'otra-clave')->postJson('/api/v1/auth/login')
             ->assertStatus(422)
             ->assertJsonPath('errors.email.0', $message);
     }
 
+    public function test_las_credenciales_en_el_cuerpo_se_ignoran(): void
+    {
+        $user = $this->createUser();
+
+        // Solo cuenta el encabezado Authorization: Basic; el cuerpo no sirve para iniciar sesión.
+        $this->postJson('/api/v1/auth/login', ['email' => $user->email, 'password' => self::PASSWORD])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['email', 'password']);
+    }
+
+    public function test_la_contrasena_puede_tener_acentos_y_dos_puntos(): void
+    {
+        $user = $this->createUser(attributes: ['password' => 'Año:2026-ñandú']);
+
+        // Base64 de UTF-8; el primer ":" separa el correo de la contraseña.
+        $this->withBasicAuth($user->email, 'Año:2026-ñandú')->postJson('/api/v1/auth/login')->assertOk();
+    }
+
     public function test_login_permite_cinco_intentos_por_minuto(): void
     {
-        $credentials = ['email' => 'ataque@example.com', 'password' => 'adivinando'];
-
         for ($attempt = 1; $attempt <= 5; $attempt++) {
-            $this->postJson('/api/v1/auth/login', $credentials)->assertStatus(422);
+            $this->withBasicAuth('ataque@example.com', 'adivinando')->postJson('/api/v1/auth/login')->assertStatus(422);
         }
 
-        $this->postJson('/api/v1/auth/login', $credentials)
+        $this->withBasicAuth('ataque@example.com', 'adivinando')->postJson('/api/v1/auth/login')
             ->assertStatus(429)
             ->assertHeader('Retry-After')
             ->assertJsonPath('message', fn (string $message) => str_starts_with($message, 'Demasiados intentos.'));
@@ -60,7 +76,7 @@ class AuthTest extends TestCase
     public function test_logout_revoca_el_token(): void
     {
         $user = $this->createUser();
-        $token = $this->postJson('/api/v1/auth/login', ['email' => $user->email, 'password' => self::PASSWORD])->json('token');
+        $token = $this->withBasicAuth($user->email, self::PASSWORD)->postJson('/api/v1/auth/login')->json('token');
 
         $this->withToken($token)->postJson('/api/v1/auth/logout')->assertNoContent();
 

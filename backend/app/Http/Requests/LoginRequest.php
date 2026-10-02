@@ -3,31 +3,26 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use OpenApi\Attributes as OA;
 
 /**
- * Valida los datos para iniciar sesión.
+ * Valida las credenciales del inicio de sesión. Llegan en el encabezado
+ * Authorization: Basic base64(correo:contraseña), nunca en el cuerpo de la petición.
  */
-#[OA\Schema(
-    schema: 'LoginInput',
-    required: ['email', 'password'],
-    properties: [
-        new OA\Property(
-            property: 'email',
-            type: 'string',
-            format: 'email',
-            example: 'admin@example.com',
-            description: 'Usuario (correo). No distingue mayúsculas.'
-        ),
-        new OA\Property(property: 'password', type: 'string', format: 'password', example: '********'),
-    ],
-    type: 'object'
-)]
 class LoginRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * Valida el correo y la contraseña del encabezado; los campos del cuerpo se ignoran.
+     *
+     * @return array<string, string|null>
+     */
+    public function validationData(): array
+    {
+        return ['email' => $this->getUser(), 'password' => $this->getPassword()];
     }
 
     /**

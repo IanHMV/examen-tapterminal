@@ -30,8 +30,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Inicio de sesión: máximo 5 intentos por minuto para cada correo desde cada IP.
         // Frena a quien intenta adivinar contraseñas sin bloquear a los demás usuarios.
+        // El correo llega en el encabezado Authorization: Basic (getUser()).
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by(Str::lower((string) $request->input('email')) . '|' . $request->ip());
+            return Limit::perMinute(5)->by(Str::lower((string) $request->getUser()) . '|' . $request->ip());
         });
 
         // Recuperación de contraseña: máximo 5 solicitudes por minuto desde cada IP, cambie o no

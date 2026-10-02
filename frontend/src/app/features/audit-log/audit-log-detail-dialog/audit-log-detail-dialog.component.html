@@ -1,9 +1,9 @@
 <dialog #dialog class="dialog audit-detail" aria-labelledby="audit-detail-title">
   @if (log(); as log) {
-    <h2 id="audit-detail-title" class="dialog__title">
+    <h2 id="audit-detail-title" class="h5 mb-3">
       {{ actionLabels[log.action] }} de {{ entityLabels[log.entity] | lowercase }} {{ log.entity_code }}
     </h2>
-    <dl class="details">
+    <dl class="details mb-3">
       <dt>Fecha</dt>
       <dd>{{ log.created_at | date: dateTimeFormat }}</dd>
       <dt>Usuario</dt>
@@ -12,33 +12,35 @@
       <dd>{{ log.ip ?? '—' }}</dd>
     </dl>
 
-    <table class="table audit-detail__comparison">
-      <caption class="audit-detail__caption">Los campos que cambiaron están resaltados.</caption>
-      <thead>
-        <tr>
-          <th scope="col">Campo</th>
-          <th scope="col">Antes</th>
-          <th scope="col">Después</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (row of rows(); track row.field) {
-          <tr [class.audit-detail__row--changed]="row.changed">
-            <th scope="row">
-              {{ row.label }}
-              @if (row.changed) {
-                <span class="audit-detail__badge">cambió</span>
-              }
-            </th>
-            <td>{{ row.before }}</td>
-            <td>{{ row.after }}</td>
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered align-middle mb-0 audit-detail__comparison">
+        <caption class="small">Los campos que cambiaron están resaltados.</caption>
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Campo</th>
+            <th scope="col">Antes</th>
+            <th scope="col">Después</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.field) {
+            <tr [class.table-warning]="row.changed">
+              <th scope="row" class="fw-medium">
+                {{ row.label }}
+                @if (row.changed) {
+                  <span class="badge text-bg-warning ms-1">cambió</span>
+                }
+              </th>
+              <td>{{ row.before }}</td>
+              <td>{{ row.after }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 
-  <div class="dialog__actions">
-    <button type="button" class="button button--secondary" (click)="close()">Cerrar</button>
+  <div class="d-flex justify-content-end mt-4">
+    <button type="button" class="btn btn-outline-secondary" (click)="close()">Cerrar</button>
   </div>
 </dialog>

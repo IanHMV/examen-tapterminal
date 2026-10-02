@@ -28,6 +28,12 @@ use OpenApi\Attributes as OA;
     description: 'Token de POST /api/v1/auth/login (sin la palabra "Bearer").',
     scheme: 'bearer'
 )]
+#[OA\SecurityScheme(
+    securityScheme: 'basicAuth',
+    type: 'http',
+    description: 'Solo para POST /api/v1/auth/login: el correo como usuario y la contraseña.',
+    scheme: 'basic'
+)]
 #[OA\OpenApi(security: [['bearerAuth' => []]])]
 #[OA\Tag(name: 'Sesión', description: 'Inicio y cierre de sesión con tokens Bearer (Laravel Sanctum) y recuperación de contraseña')]
 #[OA\Tag(name: 'Sistema', description: 'Estado y salud del servicio')]

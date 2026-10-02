@@ -12,7 +12,6 @@ import { Paginated } from '../../../core/models/api.model';
   selector: 'app-pagination',
   imports: [RouterLink],
   templateUrl: './pagination.component.html',
-  styleUrl: './pagination.component.scss',
 })
 export class PaginationComponent {
   /** Datos de paginación que devuelve la API (links y meta). */

@@ -34,7 +34,7 @@ describe('ProductListComponent', () => {
     return harness.routeNativeElement as HTMLElement;
   }
 
-  it('muestra las columnas del examen: código, nombre, precio y fecha', async () => {
+  it('muestra las columnas del examen: código, nombre, marca, precio y fecha', async () => {
     await harness.navigateByUrl('/productos', ProductListComponent);
     httpTesting.expectOne((req) => req.url === productsUrl).flush(buildPage([buildProduct()]));
 
@@ -42,8 +42,9 @@ describe('ProductListComponent', () => {
 
     expect(cells[0]).toBe('PRD-0003');
     expect(cells[1]).toBe('Guantes de carga de piel');
-    expect(cells[2]).toBe('$119.00');
-    expect(cells[3]).toMatch(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/); // DD/MM/YYYY HH:MM
+    expect(cells[2]).toBe(buildProduct().brand);
+    expect(cells[3]).toBe('$119.00');
+    expect(cells[4]).toMatch(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/); // DD/MM/YYYY HH:MM
     const actions = Array.from(screen().querySelectorAll('tbody a')).map((a) => a.getAttribute('href'));
     expect(actions).toEqual(['/productos/PRD-0003', '/productos/PRD-0003/editar']);
   });
@@ -71,7 +72,7 @@ describe('ProductListComponent', () => {
       ),
     );
 
-    const pagination = screen().querySelector('.pagination') as HTMLElement;
+    const pagination = screen().querySelector('nav[aria-label="Paginación"]') as HTMLElement;
     const links = Array.from(pagination.querySelectorAll('a')).map((a) => a.getAttribute('href'));
 
     expect(pagination.textContent).toContain('11–11 de 21 productos');
@@ -108,12 +109,12 @@ describe('ProductListComponent', () => {
 
     /** Pulsa "Eliminar" en la primera fila y devuelve el diálogo de confirmación. */
     function clickDeleteOnFirstRow(): HTMLDialogElement {
-      (screen().querySelector('.link-button--danger') as HTMLButtonElement).click();
+      (screen().querySelector('.btn-outline-danger') as HTMLButtonElement).click();
       return screen().querySelector('dialog') as HTMLDialogElement;
     }
 
     function confirmIn(dialog: HTMLDialogElement): void {
-      (dialog.querySelector('.button--danger') as HTMLButtonElement).click();
+      (dialog.querySelector('.btn-danger') as HTMLButtonElement).click();
     }
 
     it('pide confirmación y, al confirmar, elimina y recarga la página', async () => {
@@ -141,7 +142,7 @@ describe('ProductListComponent', () => {
       await openListWith('/productos', buildPage([buildProduct()]));
 
       const dialog = clickDeleteOnFirstRow();
-      (dialog.querySelector('.button--secondary') as HTMLButtonElement).click();
+      (dialog.querySelector('.btn-outline-secondary') as HTMLButtonElement).click();
 
       expect(dialog.open).toBeFalse();
       httpTesting.expectNone((req) => req.method === 'DELETE');

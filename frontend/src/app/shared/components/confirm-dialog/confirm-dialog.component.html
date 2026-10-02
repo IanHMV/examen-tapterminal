@@ -1,8 +1,8 @@
 <dialog #dialog class="dialog" [attr.aria-labelledby]="titleId">
-  <h2 [id]="titleId" class="dialog__title">{{ title() }}</h2>
+  <h2 [id]="titleId" class="h5 mb-3">{{ title() }}</h2>
   <ng-content />
-  <div class="dialog__actions">
-    <button type="button" class="button button--secondary" (click)="close()">Cancelar</button>
-    <button type="button" class="button button--danger" (click)="confirm()">{{ confirmLabel() }}</button>
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <button type="button" class="btn btn-outline-secondary" (click)="close()">Cancelar</button>
+    <button type="button" class="btn btn-danger" (click)="confirm()">{{ confirmLabel() }}</button>
   </div>
 </dialog>

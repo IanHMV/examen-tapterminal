@@ -32,14 +32,29 @@ describe('AuthService', () => {
 
     service.login('admin@example.com', 'secreta').subscribe();
 
+    // Encabezado Authorization: Basic base64("correo:contraseña") y ningún dato en el cuerpo.
     const request = httpTesting.expectOne(`${authUrl}/login`);
-    expect(request.request.body).toEqual({ email: 'admin@example.com', password: 'secreta' });
+    expect(request.request.headers.get('Authorization')).toBe(`Basic ${btoa('admin@example.com:secreta')}`);
+    expect(request.request.body).toBeNull();
     request.flush(response);
 
     expect(service.isAuthenticated()).toBeTrue();
     expect(service.currentUser()?.email).toBe('admin@example.com');
     expect(service.token()).toBe('1|token-de-prueba');
     expect(JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) ?? '{}').token).toBe('1|token-de-prueba');
+  });
+
+  it('login() codifica en UTF-8 una contraseña con acentos o "ñ"', () => {
+    const service = createService();
+
+    service.login('ana@example.com', 'Año-2026').subscribe();
+
+    const request = httpTesting.expectOne(`${authUrl}/login`);
+    const decoded = new TextDecoder().decode(
+      Uint8Array.from(atob(request.request.headers.get('Authorization')!.slice(6)), (c) => c.charCodeAt(0)),
+    );
+    expect(decoded).toBe('ana@example.com:Año-2026');
+    request.flush(buildLoginResponse());
   });
 
   it('restoreSession() recupera al usuario con el token guardado', () => {

@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -20,7 +20,7 @@ describe('AppComponent', () => {
       imports: [AppComponent],
       providers: [
         provideRouter([]),
-        // ApiStatusComponent hace una petición: se responde con el HttpClient simulado.
+        // AppComponent consulta el healthcheck: se responde con el HttpClient simulado.
         provideHttpClient(),
         provideHttpClientTesting(),
         // AuthService simulado: la prueba decide si hay sesión.
@@ -34,6 +34,17 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   }
+
+  it('informa el estado de la API en la consola (sin mostrarlo en pantalla)', () => {
+    const info = spyOn(console, 'info');
+    render();
+
+    TestBed.inject(HttpTestingController)
+      .expectOne((req) => req.url.endsWith('/healthcheck'))
+      .flush({ status: 'ok', service: 'Examen TAP Terminal', checks: { database: 'ok' }, timestamp: '' });
+
+    expect(info).toHaveBeenCalledWith('API en línea · Examen TAP Terminal · base de datos: ok');
+  });
 
   it('should render the system name', () => {
     expect(render().querySelector('h1')?.textContent).toContain('Examen TAP Terminal');

@@ -64,8 +64,8 @@ describe('UserDetailComponent', () => {
   it('elimina tras confirmar y avisa que se eliminó', () => {
     httpTesting.expectOne(`${usersUrl}/USR-0002`).flush({ data: buildUser() });
 
-    (screen().querySelector('.user-detail__actions .button--danger') as HTMLButtonElement).click();
-    (screen().querySelector('dialog .button--danger') as HTMLButtonElement).click();
+    (screen().querySelector('.user-detail__actions .btn-outline-danger') as HTMLButtonElement).click();
+    (screen().querySelector('dialog .btn-danger') as HTMLButtonElement).click();
 
     const request = httpTesting.expectOne(`${usersUrl}/USR-0002`);
     expect(request.request.method).toBe('DELETE');

@@ -1,53 +1,62 @@
-<section class="product-detail">
-  <a routerLink="/productos">← Volver al listado</a>
+<section class="page-narrow">
+  <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover small" routerLink="/productos">
+    ← Volver al listado
+  </a>
 
-  @switch (state()) {
-    @case ('loading') {
-      <p>Cargando producto…</p>
-    }
-    @case ('not-found') {
-      <p class="alert alert--error" role="alert">El producto no existe.</p>
-    }
-    @case ('error') {
-      <p class="alert alert--error" role="alert">No se pudo cargar el producto. Intenta de nuevo.</p>
-    }
-    @case ('deleted') {
-      <p class="alert alert--success" role="status">Se eliminó el producto {{ product()?.code }}.</p>
-    }
-    @case ('ready') {
-      @if (product(); as product) {
-        <h2>{{ product.name }}</h2>
-        <dl class="details">
-          <dt>Código</dt>
-          <dd>{{ product.code }}</dd>
-          <dt>Marca</dt>
-          <dd>{{ product.brand }}</dd>
-          <dt>Precio</dt>
-          <dd>{{ product.price | currency: 'MXN' : 'symbol-narrow' }}</dd>
-          <dt>Fecha de creación</dt>
-          <dd>{{ product.created_at | date: dateTimeFormat }}</dd>
-          <dt>Última modificación</dt>
-          <dd>{{ product.updated_at | date: dateTimeFormat }}</dd>
-        </dl>
+  <div class="mt-2">
+    @switch (state()) {
+      @case ('loading') {
+        <p class="text-body-secondary">Cargando producto…</p>
+      }
+      @case ('not-found') {
+        <div class="alert alert-danger" role="alert">El producto no existe.</div>
+      }
+      @case ('error') {
+        <div class="alert alert-danger" role="alert">No se pudo cargar el producto. Intenta de nuevo.</div>
+      }
+      @case ('deleted') {
+        <div class="alert alert-success" role="status">Se eliminó el producto {{ product()?.code }}.</div>
+      }
+      @case ('ready') {
+        @if (product(); as product) {
+          <div class="card shadow-sm">
+            <div class="card-header bg-body">
+              <h2 class="h5 mb-0">{{ product.name }}</h2>
+            </div>
+            <div class="card-body">
+              <dl class="details">
+                <dt>Código</dt>
+                <dd>{{ product.code }}</dd>
+                <dt>Marca</dt>
+                <dd>{{ product.brand }}</dd>
+                <dt>Precio</dt>
+                <dd>{{ product.price | currency: 'MXN' : 'symbol-narrow' }}</dd>
+                <dt>Fecha de creación</dt>
+                <dd>{{ product.created_at | date: dateTimeFormat }}</dd>
+                <dt>Última modificación</dt>
+                <dd>{{ product.updated_at | date: dateTimeFormat }}</dd>
+              </dl>
 
-        @if (deleteError(); as message) {
-          <p class="alert alert--error" role="alert">{{ message }}</p>
+              @if (deleteError(); as message) {
+                <div class="alert alert-danger mt-3 mb-0" role="alert">{{ message }}</div>
+              }
+            </div>
+            <div class="card-footer bg-body product-detail__actions d-flex gap-2">
+              <a class="btn btn-primary btn-sm" [routerLink]="['/productos', product.code, 'editar']">Editar</a>
+              <button type="button" class="btn btn-outline-danger btn-sm" [disabled]="deleting()" (click)="askDelete()">
+                {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
+              </button>
+            </div>
+          </div>
         }
-
-        <div class="product-detail__actions">
-          <a class="button" [routerLink]="['/productos', product.code, 'editar']">Editar</a>
-          <button type="button" class="button button--danger" [disabled]="deleting()" (click)="askDelete()">
-            {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
-          </button>
-        </div>
       }
     }
-  }
+  </div>
 
   <app-confirm-dialog title="¿Eliminar producto?" confirmLabel="Eliminar" (confirmed)="deleteProduct()">
     @if (product(); as product) {
       <p>Se eliminará <strong>{{ product.code }}</strong> · {{ product.name }}.</p>
-      <p>Esta acción no se puede deshacer.</p>
+      <p class="mb-0">Esta acción no se puede deshacer.</p>
     }
   </app-confirm-dialog>
 </section>

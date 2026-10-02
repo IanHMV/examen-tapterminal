@@ -61,13 +61,13 @@ describe('UserListComponent', () => {
 
     const rows = Array.from(screen().querySelectorAll('tbody tr'));
 
-    expect(rows[0].querySelector('.link-button--danger')).toBeNull();
-    expect(rows[1].querySelector('.link-button--danger')).not.toBeNull();
+    expect(rows[0].querySelector('.btn-outline-danger')).toBeNull();
+    expect(rows[1].querySelector('.btn-outline-danger')).not.toBeNull();
   });
 
   it('muestra el motivo si la API no permite eliminar (409)', () => {
-    (screen().querySelector('tbody tr:first-child .link-button--danger') as HTMLButtonElement).click();
-    (screen().querySelector('dialog .button--danger') as HTMLButtonElement).click();
+    (screen().querySelector('tbody tr:first-child .btn-outline-danger') as HTMLButtonElement).click();
+    (screen().querySelector('dialog .btn-danger') as HTMLButtonElement).click();
 
     httpTesting
       .expectOne(`${usersUrl}/USR-0001`)
@@ -77,12 +77,12 @@ describe('UserListComponent', () => {
   });
 
   it('elimina tras confirmar y recarga la página', () => {
-    (screen().querySelector('tbody tr:first-child .link-button--danger') as HTMLButtonElement).click();
+    (screen().querySelector('tbody tr:first-child .btn-outline-danger') as HTMLButtonElement).click();
 
     const dialog = screen().querySelector('dialog') as HTMLDialogElement;
     expect(dialog.open).toBeTrue();
     expect(dialog.textContent).toContain('admin@example.com');
-    (dialog.querySelector('.button--danger') as HTMLButtonElement).click();
+    (dialog.querySelector('.btn-danger') as HTMLButtonElement).click();
 
     const request = httpTesting.expectOne(`${usersUrl}/USR-0001`);
     expect(request.request.method).toBe('DELETE');

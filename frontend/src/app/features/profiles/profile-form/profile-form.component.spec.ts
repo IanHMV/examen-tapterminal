@@ -67,7 +67,7 @@ describe('ProfileFormComponent', () => {
     });
 
     it('muestra una casilla por cada sección del catálogo', () => {
-      const labels = Array.from(screen().querySelectorAll('.checkbox')).map((label) => label.textContent?.trim());
+      const labels = Array.from(screen().querySelectorAll('.form-check')).map((label) => label.textContent?.trim());
 
       expect(labels).toEqual(['Productos', 'Usuarios', 'Perfiles', 'Bitácora']);
       expect(checkbox('products').checked).toBeFalse();
@@ -94,7 +94,7 @@ describe('ProfileFormComponent', () => {
       expect(request.request.body).toEqual({ name: 'Supervisor', sections: ['products', 'users'] });
       request.flush({ data: buildProfile({ code: 'PRF-0003', name: 'Supervisor' }) }, { status: 201, statusText: 'Created' });
 
-      expect(screen().querySelector('.alert--success')?.textContent).toContain('Se creó el perfil PRF-0003');
+      expect(screen().querySelector('.alert-success')?.textContent).toContain('Se creó el perfil PRF-0003');
       expect((screen().querySelector('#name') as HTMLInputElement).value).toBe('');
       expect(checkbox('products').checked).toBeFalse();
     });
@@ -160,7 +160,7 @@ describe('ProfileFormComponent', () => {
       expect(request.request.body).toEqual({ name: 'Capturista de productos', sections: ['products', 'audit_log'] });
       request.flush({ data: buildProfile() });
 
-      expect(screen().querySelector('.alert--success')?.textContent).toContain('Se guardaron los cambios de PRF-0002');
+      expect(screen().querySelector('.alert-success')?.textContent).toContain('Se guardaron los cambios de PRF-0002');
     });
 
     it('avisa que el perfil no existe y no muestra el formulario', () => {

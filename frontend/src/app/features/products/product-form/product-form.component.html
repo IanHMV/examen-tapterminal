@@ -1,113 +1,129 @@
-<section class="form-page">
-  @if (isEdit) {
-    <h2>Editar producto</h2>
-    <p class="form-page__hint">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
-  } @else {
-    <h2>Nuevo producto</h2>
-    <p class="form-page__hint">El código y la fecha de creación se asignan automáticamente.</p>
-  }
+<section class="page-narrow">
+  <a class="link-secondary link-underline-opacity-0 link-underline-opacity-100-hover small"
+    [routerLink]="isEdit ? ['/productos', code] : ['/productos']">← Volver</a>
 
-  @if (savedProduct(); as product) {
-    <p class="alert alert--success" role="status">
+  <div class="card shadow-sm mt-2">
+    <div class="card-body p-4">
       @if (isEdit) {
-        Se guardaron los cambios de <a [routerLink]="['/productos', product.code]"><strong>{{ product.code }}</strong></a>
-        el {{ product.updated_at | date: dateTimeFormat }}.
+        <h2 class="h4">Editar producto</h2>
+        <p class="text-body-secondary small">Código <strong>{{ code }}</strong>: no se puede modificar.</p>
       } @else {
-        Se creó el producto <a [routerLink]="['/productos', product.code]"><strong>{{ product.code }}</strong></a>:
-        {{ product.name }}, {{ product.price | currency: 'MXN' : 'symbol-narrow' }},
-        el {{ product.created_at | date: dateTimeFormat }}.
+        <h2 class="h4">Nuevo producto</h2>
+        <p class="text-body-secondary small">El código y la fecha de creación se asignan automáticamente.</p>
       }
-    </p>
-  }
 
-  @if (errorMessage(); as message) {
-    <p class="alert alert--error" role="alert">{{ message }}</p>
-  }
-
-  @switch (loadState()) {
-    @case ('loading') {
-      <p>Cargando producto…</p>
-    }
-    @case ('not-found') {
-      <p class="alert alert--error" role="alert">El producto no existe.</p>
-    }
-    @case ('error') {
-      <p class="alert alert--error" role="alert">No se pudo cargar el producto. Intenta de nuevo.</p>
-    }
-    @case ('ready') {
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        @let name = form.controls.name;
-        <div class="field">
-          <label for="name">Nombre</label>
-          <input id="name" type="text" formControlName="name" autocomplete="off"
-            [attr.aria-invalid]="name.invalid && name.touched" aria-describedby="name-error" />
-          @if (name.invalid && name.touched) {
-            <p id="name-error" class="field__error">
-              @if (name.hasError('server')) {
-                {{ name.getError('server') }}
-              } @else if (name.hasError('maxlength')) {
-                Máximo {{ rules.nameMaxLength }} caracteres.
-              } @else {
-                El nombre es obligatorio.
-              }
-            </p>
+      @if (savedProduct(); as product) {
+        <div class="alert alert-success" role="status">
+          @if (isEdit) {
+            Se guardaron los cambios de
+            <a class="alert-link" [routerLink]="['/productos', product.code]">{{ product.code }}</a>
+            el {{ product.updated_at | date: dateTimeFormat }}.
+          } @else {
+            Se creó el producto <a class="alert-link" [routerLink]="['/productos', product.code]">{{ product.code }}</a>:
+            {{ product.name }}, {{ product.price | currency: 'MXN' : 'symbol-narrow' }},
+            el {{ product.created_at | date: dateTimeFormat }}.
           }
         </div>
+      }
 
-        @let brand = form.controls.brand;
-        <div class="field">
-          <label for="brand">Marca</label>
-          <input id="brand" type="text" formControlName="brand" autocomplete="off"
-            [attr.aria-invalid]="brand.invalid && brand.touched" aria-describedby="brand-error" />
-          @if (brand.invalid && brand.touched) {
-            <p id="brand-error" class="field__error">
-              @if (brand.hasError('server')) {
-                {{ brand.getError('server') }}
-              } @else if (brand.hasError('maxlength')) {
-                Máximo {{ rules.brandMaxLength }} caracteres.
-              } @else {
-                La marca es obligatoria.
+      @if (errorMessage(); as message) {
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      }
+
+      @switch (loadState()) {
+        @case ('loading') {
+          <p class="text-body-secondary">Cargando producto…</p>
+        }
+        @case ('not-found') {
+          <div class="alert alert-danger" role="alert">El producto no existe.</div>
+        }
+        @case ('error') {
+          <div class="alert alert-danger" role="alert">No se pudo cargar el producto. Intenta de nuevo.</div>
+        }
+        @case ('ready') {
+          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            @let name = form.controls.name;
+            <div class="mb-3">
+              <label class="form-label" for="name">Nombre</label>
+              <input id="name" class="form-control" type="text" formControlName="name" autocomplete="off"
+                [class.is-invalid]="name.invalid && name.touched" [attr.aria-invalid]="name.invalid && name.touched"
+                aria-describedby="name-error" />
+              @if (name.invalid && name.touched) {
+                <div id="name-error" class="invalid-feedback">
+                  @if (name.hasError('server')) {
+                    {{ name.getError('server') }}
+                  } @else if (name.hasError('maxlength')) {
+                    Máximo {{ rules.nameMaxLength }} caracteres.
+                  } @else {
+                    El nombre es obligatorio.
+                  }
+                </div>
               }
-            </p>
-          }
-        </div>
+            </div>
 
-        @let price = form.controls.price;
-        <div class="field">
-          <label for="price">Precio</label>
-          <input id="price" type="number" inputmode="decimal" step="0.01" formControlName="price"
-            [attr.aria-invalid]="price.invalid && price.touched" aria-describedby="price-hint price-error" />
-          <small id="price-hint">De {{ rules.priceMin }} a {{ rules.priceMax }}, con máximo 2 decimales.</small>
-          @if (price.invalid && price.touched) {
-            <p id="price-error" class="field__error">
-              @if (price.hasError('server')) {
-                {{ price.getError('server') }}
-              } @else if (price.hasError('required')) {
-                El precio es obligatorio.
-              } @else if (price.hasError('min')) {
-                El precio mínimo es {{ rules.priceMin }}.
-              } @else if (price.hasError('max')) {
-                El precio máximo es {{ rules.priceMax }}.
-              } @else {
-                Máximo 2 decimales.
-              }
-            </p>
-          }
-        </div>
+            <div class="row g-3 mb-4">
+              @let brand = form.controls.brand;
+              <div class="col-sm-7">
+                <label class="form-label" for="brand">Marca</label>
+                <input id="brand" class="form-control" type="text" formControlName="brand" autocomplete="off"
+                  [class.is-invalid]="brand.invalid && brand.touched" [attr.aria-invalid]="brand.invalid && brand.touched"
+                  aria-describedby="brand-error" />
+                @if (brand.invalid && brand.touched) {
+                  <div id="brand-error" class="invalid-feedback">
+                    @if (brand.hasError('server')) {
+                      {{ brand.getError('server') }}
+                    } @else if (brand.hasError('maxlength')) {
+                      Máximo {{ rules.brandMaxLength }} caracteres.
+                    } @else {
+                      La marca es obligatoria.
+                    }
+                  </div>
+                }
+              </div>
 
-        <div class="form-actions">
-          <button type="submit" class="button" [disabled]="saving()">
-            @if (saving()) {
-              Guardando…
-            } @else if (isEdit) {
-              Guardar cambios
-            } @else {
-              Guardar producto
-            }
-          </button>
-          <a [routerLink]="isEdit ? ['/productos', code] : ['/productos']">Cancelar</a>
-        </div>
-      </form>
-    }
-  }
+              @let price = form.controls.price;
+              <div class="col-sm-5">
+                <label class="form-label" for="price">Precio</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text">$</span>
+                  <input id="price" class="form-control" type="number" inputmode="decimal" step="0.01"
+                    formControlName="price" [class.is-invalid]="price.invalid && price.touched"
+                    [attr.aria-invalid]="price.invalid && price.touched" aria-describedby="price-hint price-error" />
+                  @if (price.invalid && price.touched) {
+                    <div id="price-error" class="invalid-feedback">
+                      @if (price.hasError('server')) {
+                        {{ price.getError('server') }}
+                      } @else if (price.hasError('required')) {
+                        El precio es obligatorio.
+                      } @else if (price.hasError('min')) {
+                        El precio mínimo es {{ rules.priceMin }}.
+                      } @else if (price.hasError('max')) {
+                        El precio máximo es {{ rules.priceMax }}.
+                      } @else {
+                        Máximo 2 decimales.
+                      }
+                    </div>
+                  }
+                </div>
+                <div id="price-hint" class="form-text">De {{ rules.priceMin }} a {{ rules.priceMax }}, con máximo 2 decimales.</div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="saving()">
+                @if (saving()) {
+                  Guardando…
+                } @else if (isEdit) {
+                  Guardar cambios
+                } @else {
+                  Guardar producto
+                }
+              </button>
+              <a class="btn btn-outline-secondary" [routerLink]="isEdit ? ['/productos', code] : ['/productos']">Cancelar</a>
+            </div>
+          </form>
+        }
+      }
+    </div>
+  </div>
 </section>
