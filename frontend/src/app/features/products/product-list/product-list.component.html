@@ -30,7 +30,10 @@
                 <td>{{ product.name }}</td>
                 <td class="table__number">{{ product.price | currency: 'MXN' : 'symbol-narrow' }}</td>
                 <td>{{ product.created_at | date: dateTimeFormat }}</td>
-                <td><a [routerLink]="['/productos', product.code]">Ver</a></td>
+                <td class="table__actions">
+                  <a [routerLink]="['/productos', product.code]">Ver</a>
+                  <a [routerLink]="['/productos', product.code, 'editar']">Editar</a>
+                </td>
               </tr>
             } @empty {
               <tr>

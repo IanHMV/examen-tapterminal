@@ -20,6 +20,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/products/product-detail/product-detail.component').then((m) => m.ProductDetailComponent),
   },
+  // Mismo formulario que el alta: con código en la URL, edita.
+  {
+    path: 'productos/:code/editar',
+    title: 'Editar producto | Examen TAP Terminal',
+    loadComponent: () =>
+      import('./features/products/product-form/product-form.component').then((m) => m.ProductFormComponent),
+  },
   // Cualquier otra URL lleva al inicio (evita el error NG04002).
   // Apunta a la ruta final: Angular no encadena un redirect detrás de otro.
   { path: '**', redirectTo: 'productos' },

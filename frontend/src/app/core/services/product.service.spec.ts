@@ -70,4 +70,19 @@ describe('ProductService', () => {
 
     expect(result).toEqual(product);
   });
+
+  it('update() envía los cambios con PUT al código del producto', () => {
+    const product = buildProduct({ price: '129.50' });
+    const input = { name: product.name, brand: product.brand, price: 129.5 };
+    let result: Product | undefined;
+
+    service.update('PRD-0003', input).subscribe((response) => (result = response));
+
+    const request = httpTesting.expectOne(`${baseUrl}/PRD-0003`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(input);
+    request.flush({ data: product });
+
+    expect(result).toEqual(product);
+  });
 });

@@ -43,7 +43,8 @@ describe('ProductListComponent', () => {
     expect(cells[1]).toBe('Guantes de carga de piel');
     expect(cells[2]).toBe('$119.00');
     expect(cells[3]).toMatch(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/); // DD/MM/YYYY HH:MM
-    expect(screen().querySelector('tbody a')?.getAttribute('href')).toBe('/productos/PRD-0003');
+    const actions = Array.from(screen().querySelectorAll('tbody a')).map((a) => a.getAttribute('href'));
+    expect(actions).toEqual(['/productos/PRD-0003', '/productos/PRD-0003/editar']);
   });
 
   it('lee la página de la URL (?pagina=2) y enlaza a la anterior y la siguiente', async () => {
