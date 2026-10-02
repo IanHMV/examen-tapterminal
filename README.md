@@ -115,6 +115,29 @@ Cualquier aviso nuevo, en cualquier paquete, sigue bloqueando la instalación.
 - **En Angular:** la pantalla "Bitácora" filtra por entidad y código (los filtros viven en la URL, igual
   que la página) y una ventana modal compara campo por campo el antes y el después, resaltando lo que cambió.
 
+### Exportación a Excel y PDF
+
+- **Requisito:** cada listado (productos, usuarios, perfiles y bitácora) se exporta a Excel y PDF, con las
+  fechas en formato DD/MM/YYYY HH:MM.
+- **Los genera la API, con todos los registros:** `GET /api/v1/{listado}/export?format=xlsx|pdf` (la bitácora
+  acepta además sus filtros). Así el archivo trae todo, no solo la página que se ve, y la ruta exige la
+  misma sección que el listado (403 sin ella). También se puede descargar desde Swagger o Postman.
+- **Cada listado describe sus columnas** en una clase de `app/Exports` (interfaz `TableExport`) y
+  `App\Support\TableExporter` escribe el archivo. Agregar otro listado es una clase de unas 20 líneas.
+- **Excel con OpenSpout:** se escribe fila por fila directo a la respuesta, sin cargar todos los documentos en
+  memoria (`cursor()`). Las fechas y los precios quedan como fecha y número, así se pueden ordenar y sumar.
+- **PDF con dompdf:** una vista Blade (`resources/views/exports/table.blade.php`) en hoja carta horizontal,
+  con los encabezados repetidos en cada página y "Página X de Y". Blade escapa cada valor (un nombre con
+  HTML no se interpreta), las imágenes remotas están desactivadas y solo se incrustan las letras que se
+  usan (unos 25 KB por archivo en lugar de 900 KB).
+- **Fechas en la hora de quien descarga:** Angular envía la zona horaria del navegador (`timezone`) y la API
+  convierte las fechas, que MongoDB guarda en UTC.
+- **Descarga con token:** un enlace normal no puede enviar el encabezado `Authorization`, así que Angular pide
+  el archivo con `HttpClient` y lo guarda desde el navegador. La API expone `Content-Disposition` por CORS
+  para que se conserve el nombre del archivo (`productos-2026-10-02-1534.xlsx`).
+- **Dependencias** (las versiones más recientes compatibles con PHP 8.2, sin avisos de seguridad):
+  `openspout/openspout` 4.28 y `barryvdh/laravel-dompdf` 3.1 (dompdf 3.1).
+
 ### Modelo de datos en MongoDB
 
 Los nombres van en inglés en el código y en la base de datos (`products`, `price`), y en español en la interfaz.
@@ -266,3 +289,4 @@ Registro del avance del proyecto
 | TICK-20 | 2026-10-02 | Permisos por sección: middleware en la API (403), menú y guard en Angular según los perfiles del usuario. | [#22](https://github.com/IanHMV/examen-tapterminal/pull/22) |
 | TICK-21 | 2026-10-02 | Recuperación de contraseña y correo de bienvenida con enlace de un solo uso (60 min), Mailpit en desarrollo y Gmail en producción. | [#23](https://github.com/IanHMV/examen-tapterminal/pull/23) |
 | TICK-22 | 2026-10-02 | Bitácora del sistema: cada alta, edición y eliminación guarda el dato anterior y el actual; consulta con filtros y comparación campo por campo. | [#24](https://github.com/IanHMV/examen-tapterminal/pull/24) |
+| TICK-23 | 2026-10-02 | Exportación de cada listado a Excel y PDF desde la API (todos los registros, fechas DD/MM/YYYY HH:MM en la hora local) y botones en Angular. | [#25](https://github.com/IanHMV/examen-tapterminal/pull/25) |

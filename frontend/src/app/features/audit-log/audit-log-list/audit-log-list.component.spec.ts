@@ -103,7 +103,9 @@ describe('AuditLogListComponent', () => {
     await open('/bitacora?entidad=users&pagina=2');
     expectListRequest().flush(buildPage([]));
 
-    (screen().querySelector('.button--secondary') as HTMLButtonElement).click();
+    Array.from(screen().querySelectorAll<HTMLButtonElement>('form button'))
+      .find((button) => button.textContent?.trim() === 'Limpiar')
+      ?.click();
     await harness.fixture.whenStable();
 
     expect(router.url).toBe('/bitacora');
@@ -119,6 +121,28 @@ describe('AuditLogListComponent', () => {
 
     expect(dialog.open).toBeTrue();
     expect(dialog.querySelector('h2')?.textContent?.trim()).toBe('Edición de producto PRD-0001');
+  });
+
+  it('exporta con los filtros aplicados (los de la URL), no con lo que se esté escribiendo', async () => {
+    spyOn(HTMLAnchorElement.prototype, 'click');
+    spyOn(URL, 'createObjectURL').and.returnValue('blob:prueba');
+    spyOn(URL, 'revokeObjectURL');
+    await open('/bitacora?entidad=users&codigo=USR-0001');
+    expectListRequest().flush(buildPage([systemLog]));
+
+    const code = screen().querySelector('#code') as HTMLInputElement;
+    code.value = 'PRD-9999';
+    code.dispatchEvent(new Event('input'));
+    const pdf = Array.from(screen().querySelectorAll<HTMLButtonElement>('.export-buttons button')).find(
+      (button) => button.textContent?.trim() === 'Exportar a PDF',
+    );
+    pdf?.click();
+
+    const request = httpTesting.expectOne((req) => req.url === `${auditLogsUrl}/export`);
+    expect(request.request.params.get('format')).toBe('pdf');
+    expect(request.request.params.get('entity')).toBe('users');
+    expect(request.request.params.get('code')).toBe('USR-0001');
+    request.flush(new Blob(['%PDF']));
   });
 
   it('avisa si la API falla', async () => {

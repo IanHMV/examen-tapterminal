@@ -37,6 +37,7 @@ return [
     'regex' => 'El formato de :attribute no es válido.',
     'required' => 'El campo :attribute es obligatorio.',
     'string' => 'El campo :attribute debe ser texto.',
+    'timezone' => 'El campo :attribute debe ser una zona horaria válida.',
     'unique' => 'El campo :attribute ya ha sido registrado.',
     'uploaded' => 'El archivo :attribute no se pudo subir.',
 
@@ -71,6 +72,7 @@ return [
         'code' => 'código',
         'email' => 'correo',
         'entity' => 'entidad',
+        'format' => 'formato',
         'name' => 'nombre',
         'password' => 'contraseña',
         'phone' => 'teléfono',
@@ -80,6 +82,7 @@ return [
         'profile_codes.*' => 'perfil',
         'sections' => 'secciones',
         'sections.*' => 'sección',
+        'timezone' => 'zona horaria',
         'token' => 'enlace',
     ],
 ];

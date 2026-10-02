@@ -10,6 +10,7 @@ import { Paginated } from '../../../core/models/api.model';
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ExportButtonsComponent } from '../../../shared/components/export-buttons/export-buttons.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 type ListState = 'loading' | 'ready' | 'error';
@@ -20,7 +21,7 @@ type ListState = 'loading' | 'ready' | 'error';
  */
 @Component({
   selector: 'app-product-list',
-  imports: [RouterLink, CurrencyPipe, DatePipe, ConfirmDialogComponent, PaginationComponent],
+  imports: [RouterLink, CurrencyPipe, DatePipe, ConfirmDialogComponent, PaginationComponent, ExportButtonsComponent],
   templateUrl: './product-list.component.html',
 })
 export class ProductListComponent {

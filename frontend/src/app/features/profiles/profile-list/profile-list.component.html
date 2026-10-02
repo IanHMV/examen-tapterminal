@@ -1,7 +1,10 @@
 <section>
   <header class="page-header">
     <h2>Perfiles</h2>
-    <a class="button" routerLink="/perfiles/nuevo">Nuevo perfil</a>
+    <div class="page-header__actions">
+      <app-export-buttons resource="profiles" />
+      <a class="button" routerLink="/perfiles/nuevo">Nuevo perfil</a>
+    </div>
   </header>
 
   @if (notice(); as message) {

@@ -48,6 +48,16 @@ describe('ProductListComponent', () => {
     expect(actions).toEqual(['/productos/PRD-0003', '/productos/PRD-0003/editar']);
   });
 
+  it('ofrece exportar el listado a Excel y PDF', async () => {
+    await harness.navigateByUrl('/productos', ProductListComponent);
+    httpTesting.expectOne((req) => req.url === productsUrl).flush(buildPage([buildProduct()]));
+
+    const labels = Array.from(screen().querySelectorAll('.page-header .export-buttons button')).map((button) =>
+      button.textContent?.trim(),
+    );
+    expect(labels).toEqual(['Exportar a Excel', 'Exportar a PDF']);
+  });
+
   it('lee la página de la URL (?pagina=2) y enlaza a la anterior y la siguiente', async () => {
     await harness.navigateByUrl('/productos?pagina=2', ProductListComponent);
 

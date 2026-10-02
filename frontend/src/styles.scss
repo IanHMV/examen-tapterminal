@@ -161,6 +161,14 @@ body {
   }
 }
 
+/* Acciones del encabezado: exportar y "Nuevo …" */
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 /* Tablas de los listados */
 .table {
   width: 100%;

@@ -1,7 +1,10 @@
 <section>
   <header class="page-header">
     <h2>Usuarios</h2>
-    <a class="button" routerLink="/usuarios/nuevo">Nuevo usuario</a>
+    <div class="page-header__actions">
+      <app-export-buttons resource="users" />
+      <a class="button" routerLink="/usuarios/nuevo">Nuevo usuario</a>
+    </div>
   </header>
 
   @if (notice(); as message) {

@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exports\ProductsExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ExportRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Support\TableExporter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Catálogo de productos.
@@ -83,6 +87,28 @@ class ProductController extends Controller
         $products = Product::query()->latest()->paginate(self::PER_PAGE);
 
         return ProductResource::collection($products);
+    }
+
+    #[OA\Get(
+        path: '/api/v1/products/export',
+        operationId: 'exportProducts',
+        summary: 'Exportar productos a Excel o PDF',
+        description: 'Todos los productos, del más reciente al más antiguo. Las fechas salen como DD/MM/YYYY HH:MM.',
+        tags: ['Productos'],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/ExportFormat'),
+            new OA\Parameter(ref: '#/components/parameters/ExportTimezone'),
+        ],
+        responses: [
+            new OA\Response(ref: '#/components/responses/ExportFile', response: 200),
+            new OA\Response(ref: '#/components/responses/ExportValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
+        ]
+    )]
+    public function export(ExportRequest $request, TableExporter $exporter): StreamedResponse|Response
+    {
+        return $exporter->download(new ProductsExport(), $request->exportFormat(), $request->timezone());
     }
 
     #[OA\Post(
