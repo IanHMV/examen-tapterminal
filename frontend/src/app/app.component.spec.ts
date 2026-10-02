@@ -1,21 +1,19 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { AppComponent } from './app.component';
-import { AuthUser } from './core/models/auth.model';
 import { AuthService } from './core/services/auth.service';
-import { buildAuthUser } from './testing/auth.fixtures';
+import { buildAuthUser, createAuthServiceStub } from './testing/auth.fixtures';
 
 describe('AppComponent', () => {
-  const user = signal<AuthUser | null>(null);
   const logout = jasmine.createSpy('logout').and.returnValue(of(undefined));
+  let auth: ReturnType<typeof createAuthServiceStub>;
 
   beforeEach(async () => {
-    user.set(null);
+    auth = createAuthServiceStub();
     logout.calls.reset();
 
     await TestBed.configureTestingModule({
@@ -26,10 +24,7 @@ describe('AppComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         // AuthService simulado: la prueba decide si hay sesión.
-        {
-          provide: AuthService,
-          useValue: { currentUser: user.asReadonly(), isAuthenticated: computed(() => user() !== null), logout },
-        },
+        { provide: AuthService, useValue: { ...auth, logout } },
       ],
     }).compileComponents();
   });
@@ -52,7 +47,15 @@ describe('AppComponent', () => {
   });
 
   it('con sesión muestra el menú y quién inició sesión', () => {
-    user.set(buildAuthUser());
+    auth.user.set(
+      buildAuthUser({
+        sections: [
+          { key: 'products', name: 'Productos' },
+          { key: 'users', name: 'Usuarios' },
+          { key: 'profiles', name: 'Perfiles' },
+        ],
+      }),
+    );
 
     const page = render();
     const links = Array.from(page.querySelectorAll('.app-nav a'));
@@ -61,8 +64,16 @@ describe('AppComponent', () => {
     expect(page.querySelector('.app-session__user')?.textContent).toContain('admin@example.com');
   });
 
+  it('el menú solo muestra las secciones de sus perfiles', () => {
+    auth.user.set(buildAuthUser({ sections: [{ key: 'products', name: 'Productos' }] }));
+
+    const links = Array.from(render().querySelectorAll('.app-nav a')).map((link) => link.textContent?.trim());
+
+    expect(links).toEqual(['Productos']);
+  });
+
   it('"Cerrar sesión" revoca la sesión y lleva al login', () => {
-    user.set(buildAuthUser());
+    auth.user.set(buildAuthUser());
     const navigate = spyOn(TestBed.inject(Router), 'navigate').and.resolveTo(true);
 
     (render().querySelector('.app-session__logout') as HTMLButtonElement).click();

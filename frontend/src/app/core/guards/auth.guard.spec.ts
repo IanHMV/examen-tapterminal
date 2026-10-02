@@ -1,31 +1,38 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 
-import { AuthUser } from '../models/auth.model';
-import { buildAuthUser } from '../../testing/auth.fixtures';
+import { buildAuthUser, createAuthServiceStub } from '../../testing/auth.fixtures';
 import { AuthService } from '../services/auth.service';
 import { authGuard, guestGuard } from './auth.guard';
+import { sectionGuard } from './section.guard';
 
 @Component({ template: 'pantalla' })
 class ScreenComponent {}
 
-describe('authGuard y guestGuard', () => {
-  const user = signal<AuthUser | null>(null);
+describe('authGuard, guestGuard y sectionGuard', () => {
+  let auth: ReturnType<typeof createAuthServiceStub>;
   let harness: RouterTestingHarness;
   let router: Router;
 
   beforeEach(async () => {
-    user.set(null);
+    auth = createAuthServiceStub();
 
     TestBed.configureTestingModule({
       providers: [
-        // AuthService simulado: solo importa si hay usuario.
-        { provide: AuthService, useValue: { isAuthenticated: computed(() => user() !== null) } },
+        { provide: AuthService, useValue: auth },
         provideRouter([
           { path: 'login', canActivate: [guestGuard], component: ScreenComponent },
-          { path: '', canActivateChild: [authGuard], children: [{ path: 'productos', component: ScreenComponent }] },
+          {
+            path: '',
+            canActivateChild: [authGuard, sectionGuard],
+            children: [
+              { path: 'productos', data: { section: 'products' }, component: ScreenComponent },
+              { path: 'usuarios', data: { section: 'users' }, component: ScreenComponent },
+              { path: 'sin-acceso', component: ScreenComponent },
+            ],
+          },
         ]),
       ],
     });
@@ -39,19 +46,35 @@ describe('authGuard y guestGuard', () => {
     expect(router.url).toBe('/login?returnUrl=%2Fproductos%3Fpagina%3D2');
   });
 
-  it('con sesión, deja entrar a la pantalla protegida', async () => {
-    user.set(buildAuthUser());
+  it('con la sección en sus perfiles, deja entrar', async () => {
+    auth.user.set(buildAuthUser({ sections: [{ key: 'products', name: 'Productos' }] }));
 
     await harness.navigateByUrl('/productos');
 
     expect(router.url).toBe('/productos');
   });
 
-  it('con sesión, el login lleva al inicio', async () => {
-    user.set(buildAuthUser());
+  it('sin la sección, lleva a "Sin acceso"', async () => {
+    auth.user.set(buildAuthUser({ sections: [{ key: 'products', name: 'Productos' }] }));
+
+    await harness.navigateByUrl('/usuarios');
+
+    expect(router.url).toBe('/sin-acceso');
+  });
+
+  it('las pantallas sin sección (como "Sin acceso") solo piden sesión', async () => {
+    auth.user.set(buildAuthUser({ sections: [] }));
+
+    await harness.navigateByUrl('/sin-acceso');
+
+    expect(router.url).toBe('/sin-acceso');
+  });
+
+  it('con sesión, el login lleva a su primera pantalla permitida', async () => {
+    auth.user.set(buildAuthUser({ sections: [{ key: 'users', name: 'Usuarios' }] }));
 
     await harness.navigateByUrl('/login');
 
-    expect(router.url).toBe('/productos');
+    expect(router.url).toBe('/usuarios');
   });
 });

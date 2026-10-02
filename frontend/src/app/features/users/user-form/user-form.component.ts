@@ -8,6 +8,7 @@ import { USER_RULES } from '../../../core/constants/user-rules';
 import { ValidationErrorResponse } from '../../../core/models/api.model';
 import { ProfileOption } from '../../../core/models/profile.model';
 import { UserDetail, UserInput } from '../../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from '../../../core/services/profile.service';
 import { UserService } from '../../../core/services/user.service';
 
@@ -58,6 +59,7 @@ export class UserFormComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly userService = inject(UserService);
   private readonly profileService = inject(ProfileService);
+  private readonly auth = inject(AuthService);
 
   /** Código del usuario en edición (null al crear). */
   protected readonly code = inject(ActivatedRoute).snapshot.paramMap.get('code');
@@ -165,6 +167,11 @@ export class UserFormComponent {
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: (user) => {
         this.savedUser.set(user);
+
+        // Si se editó a sí mismo, sus perfiles (y su menú) pudieron cambiar.
+        if (user.code === this.auth.currentUser()?.code) {
+          this.auth.refreshUser().subscribe();
+        }
 
         if (this.isEdit) {
           this.fillForm(user);

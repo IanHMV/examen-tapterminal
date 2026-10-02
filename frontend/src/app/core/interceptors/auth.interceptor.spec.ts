@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
-import { storeSession } from '../../testing/auth.fixtures';
+import { buildAuthUser, storeSession } from '../../testing/auth.fixtures';
 import { AuthService } from '../services/auth.service';
 import { authInterceptor } from './auth.interceptor';
 
@@ -59,6 +59,17 @@ describe('authInterceptor', () => {
 
     expect(auth.token()).toBeNull();
     expect(navigate).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/' } });
+  });
+
+  it('con 403, actualiza el usuario (sus perfiles cambiaron) y lleva a "Sin acceso"', () => {
+    const navigate = spyOn(router, 'navigate').and.resolveTo(true);
+
+    http.get(`${environment.apiUrl}/users`).subscribe({ error: () => undefined });
+    httpTesting.expectOne(`${environment.apiUrl}/users`).flush({}, { status: 403, statusText: 'Forbidden' });
+    httpTesting.expectOne(`${environment.apiUrl}/auth/me`).flush({ data: buildAuthUser({ sections: [] }) });
+
+    expect(TestBed.inject(AuthService).hasSection('users')).toBeFalse();
+    expect(navigate).toHaveBeenCalledWith(['/sin-acceso']);
   });
 
   it('el 401 del propio login no redirige (lo muestra el formulario)', () => {

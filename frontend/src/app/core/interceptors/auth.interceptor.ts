@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { NO_ACCESS_PATH } from '../constants/sections';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -27,6 +28,12 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
       if (error.status === 401 && isApiRequest && !request.url.endsWith('/auth/login')) {
         auth.clearSession();
         router.navigate(['/login'], { queryParams: { returnUrl: router.url } });
+      }
+
+      // 403: sus perfiles ya no incluyen esa sección (alguien los cambió). Se actualiza
+      // el usuario para que el menú refleje sus permisos y se muestra "Sin acceso".
+      if (error.status === 403 && isApiRequest) {
+        auth.refreshUser().subscribe(() => router.navigate([NO_ACCESS_PATH]));
       }
 
       return throwError(() => error);

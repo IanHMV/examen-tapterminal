@@ -11,6 +11,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Support\PhotoStorage;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -88,6 +89,8 @@ class UserController extends Controller
                     ]
                 )
             ),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function index(): AnonymousResourceCollection
@@ -135,6 +138,8 @@ class UserController extends Controller
             ),
             new OA\Response(ref: '#/components/responses/Conflict', response: 409),
             new OA\Response(ref: '#/components/responses/UserValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function store(StoreUserRequest $request): JsonResponse
@@ -170,6 +175,8 @@ class UserController extends Controller
         responses: [
             new OA\Response(ref: '#/components/responses/UserDetailData', response: 200),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function show(User $user): UserDetailResource
@@ -193,6 +200,8 @@ class UserController extends Controller
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
             new OA\Response(ref: '#/components/responses/Conflict', response: 409),
             new OA\Response(ref: '#/components/responses/UserValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function update(UpdateUserRequest $request, User $user): UserDetailResource
@@ -206,16 +215,33 @@ class UserController extends Controller
         path: '/api/v1/users/{code}',
         operationId: 'deleteUser',
         summary: 'Eliminar un usuario',
-        description: 'Borra el usuario y su foto de forma permanente. Su código no se vuelve a asignar.',
+        description: 'Borra el usuario y su foto de forma permanente. Su código no se vuelve a asignar. '
+            . 'Nadie puede borrar su propio usuario.',
         tags: ['Usuarios'],
         parameters: [new OA\Parameter(ref: '#/components/parameters/UserCode')],
         responses: [
             new OA\Response(response: 204, description: 'Usuario eliminado (sin contenido).'),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+            new OA\Response(
+                response: 409,
+                description: 'Es el usuario que tiene la sesión iniciada.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'No puedes eliminar tu propio usuario.'),
+                    ]
+                )
+            ),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
-    public function destroy(User $user): Response
+    public function destroy(Request $request, User $user): Response|JsonResponse
     {
+        // Si se borrara a sí mismo perdería la sesión y, si es el único administrador, el sistema.
+        if ($request->user()->is($user)) {
+            return response()->json(['message' => 'No puedes eliminar tu propio usuario.'], Response::HTTP_CONFLICT);
+        }
+
         $user->delete();
         $this->photos->delete($user->photo_id);
 
@@ -296,6 +322,8 @@ class UserController extends Controller
             new OA\Response(ref: '#/components/responses/UserDetailData', response: 200),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
             new OA\Response(ref: '#/components/responses/UserValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function updatePhoto(UpdateUserPhotoRequest $request, User $user): UserDetailResource

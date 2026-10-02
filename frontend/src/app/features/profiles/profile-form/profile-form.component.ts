@@ -7,6 +7,7 @@ import { finalize, forkJoin, of } from 'rxjs';
 import { PROFILE_RULES } from '../../../core/constants/profile-rules';
 import { ValidationErrorResponse } from '../../../core/models/api.model';
 import { Profile, ProfileInput, Section } from '../../../core/models/profile.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from '../../../core/services/profile.service';
 
 /** Al menos un carácter que no sea espacio (la API recorta los espacios). */
@@ -26,6 +27,7 @@ type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
 export class ProfileFormComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly profileService = inject(ProfileService);
+  private readonly auth = inject(AuthService);
 
   /** Código del perfil en edición (null al crear). */
   protected readonly code = inject(ActivatedRoute).snapshot.paramMap.get('code');
@@ -104,6 +106,11 @@ export class ProfileFormComponent {
     request.pipe(finalize(() => this.saving.set(false))).subscribe({
       next: (profile) => {
         this.savedProfile.set(profile);
+
+        // Si el perfil es del usuario con sesión, sus secciones (y su menú) pudieron cambiar.
+        if (this.auth.currentUser()?.profiles.some((assigned) => assigned.code === profile.code)) {
+          this.auth.refreshUser().subscribe();
+        }
 
         // Al crear se limpia para capturar otro; al editar se conservan los datos guardados.
         if (!this.isEdit) {

@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { NO_ACCESS_PATH, SECTION_LINKS } from '../constants/sections';
 import { ApiResource } from '../models/api.model';
 import { AuthUser, LoginResponse } from '../models/auth.model';
 
@@ -35,6 +36,18 @@ export class AuthService {
   /** Usuario con sesión iniciada, o null. */
   readonly currentUser = this.user.asReadonly();
   readonly isAuthenticated = computed(() => this.user() !== null);
+
+  /** Claves de las secciones permitidas (por ejemplo, "products"). */
+  private readonly sectionKeys = computed(() => new Set(this.user()?.sections.map((section) => section.key) ?? []));
+
+  hasSection(key: string): boolean {
+    return this.sectionKeys().has(key);
+  }
+
+  /** Primera pantalla permitida, en el orden del menú; "Sin acceso" si no tiene ninguna. */
+  homeUrl(): string {
+    return SECTION_LINKS.find((link) => this.hasSection(link.key))?.path ?? NO_ACCESS_PATH;
+  }
 
   /** Token vigente para el encabezado Authorization, o null si no hay o ya venció. */
   token(): string | null {
@@ -70,6 +83,18 @@ export class AuthService {
         this.clearSession();
         return of(undefined);
       }),
+    );
+  }
+
+  /**
+   * Vuelve a pedir el usuario (sus perfiles pudieron cambiar) para actualizar el menú.
+   * Si falla, deja la sesión como estaba: el interceptor ya maneja un 401.
+   */
+  refreshUser(): Observable<void> {
+    return this.http.get<ApiResource<AuthUser>>(`${this.baseUrl}/me`).pipe(
+      tap((response) => this.user.set(response.data)),
+      map(() => undefined),
+      catchError(() => of(undefined)),
     );
   }
 

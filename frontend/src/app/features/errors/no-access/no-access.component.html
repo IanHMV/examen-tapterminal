@@ -1,0 +1,14 @@
+<section class="form-page">
+  <h2>Sin acceso</h2>
+
+  @if (allowedLinks().length > 0) {
+    <p>Tus perfiles no incluyen esa sección. Puedes ir a:</p>
+    <ul>
+      @for (link of allowedLinks(); track link.key) {
+        <li><a [routerLink]="link.path">{{ link.label }}</a></li>
+      }
+    </ul>
+  } @else {
+    <p>Tu usuario todavía no tiene secciones asignadas. Pide a un administrador que te asigne un perfil.</p>
+  }
+</section>

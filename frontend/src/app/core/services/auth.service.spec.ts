@@ -78,6 +78,42 @@ describe('AuthService', () => {
     expect(localStorage.getItem(SESSION_STORAGE_KEY)).toBeNull();
   });
 
+  it('hasSection() y homeUrl() usan las secciones del usuario', () => {
+    const service = createService();
+    const response = buildLoginResponse();
+    response.user.sections = [{ key: 'users', name: 'Usuarios' }];
+
+    service.login('admin@example.com', 'secreta').subscribe();
+    httpTesting.expectOne(`${authUrl}/login`).flush(response);
+
+    expect(service.hasSection('users')).toBeTrue();
+    expect(service.hasSection('products')).toBeFalse();
+    expect(service.homeUrl()).toBe('/usuarios');
+  });
+
+  it('homeUrl() lleva a "Sin acceso" si no tiene ninguna sección', () => {
+    const service = createService();
+    const response = buildLoginResponse();
+    response.user.sections = [];
+
+    service.login('admin@example.com', 'secreta').subscribe();
+    httpTesting.expectOne(`${authUrl}/login`).flush(response);
+
+    expect(service.homeUrl()).toBe('/sin-acceso');
+  });
+
+  it('refreshUser() actualiza las secciones (por ejemplo, después de cambiar sus perfiles)', () => {
+    const service = createService();
+    service.login('admin@example.com', 'secreta').subscribe();
+    httpTesting.expectOne(`${authUrl}/login`).flush(buildLoginResponse());
+
+    service.refreshUser().subscribe();
+    httpTesting.expectOne(`${authUrl}/me`).flush({ data: buildAuthUser({ sections: [] }) });
+
+    expect(service.hasSection('products')).toBeFalse();
+    expect(service.isAuthenticated()).toBeTrue();
+  });
+
   it('logout() revoca el token en la API y borra la sesión, aunque la API falle', () => {
     const service = createService();
     service.login('admin@example.com', 'secreta').subscribe();

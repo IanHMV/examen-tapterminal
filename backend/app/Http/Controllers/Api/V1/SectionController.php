@@ -41,6 +41,8 @@ class SectionController extends Controller
                     ]
                 )
             ),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function __invoke(): JsonResponse

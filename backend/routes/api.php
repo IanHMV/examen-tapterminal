@@ -32,14 +32,25 @@ Route::prefix('v1')->name('v1.')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me'])->name('auth.me');
         Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-        Route::apiResource('products', ProductController::class);
+        // Cada grupo exige su sección; sin ella, 403 (App\Http\Middleware\EnsureUserHasSection).
+        Route::middleware('section:products')->group(function () {
+            Route::apiResource('products', ProductController::class);
+        });
 
-        Route::get('/sections', SectionController::class)->name('sections.index');
-        // Antes de apiResource: si no, "options" se tomaría como el código de un perfil.
-        Route::get('/profiles/options', [ProfileController::class, 'options'])->name('profiles.options');
-        Route::apiResource('profiles', ProfileController::class);
+        // El formulario de usuarios también necesita la lista de perfiles: basta con una de las dos.
+        // Va antes de apiResource('profiles'): si no, "options" se tomaría como el código de un perfil.
+        Route::get('/profiles/options', [ProfileController::class, 'options'])
+            ->middleware('section:users,profiles')
+            ->name('profiles.options');
 
-        Route::apiResource('users', UserController::class);
-        Route::post('/users/{user}/photo', [UserController::class, 'updatePhoto'])->name('users.photo.update');
+        Route::middleware('section:profiles')->group(function () {
+            Route::get('/sections', SectionController::class)->name('sections.index');
+            Route::apiResource('profiles', ProfileController::class);
+        });
+
+        Route::middleware('section:users')->group(function () {
+            Route::apiResource('users', UserController::class);
+            Route::post('/users/{user}/photo', [UserController::class, 'updatePhoto'])->name('users.photo.update');
+        });
     });
 });

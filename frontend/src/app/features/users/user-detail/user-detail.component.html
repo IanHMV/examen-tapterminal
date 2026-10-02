@@ -50,9 +50,12 @@
 
         <div class="form-actions user-detail__actions">
           <a class="button" [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
-          <button type="button" class="button button--danger" [disabled]="deleting()" (click)="askDelete()">
-            {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
-          </button>
+          <!-- Nadie puede eliminarse a sí mismo (la API también lo impide). -->
+          @if (user.code !== currentUserCode()) {
+            <button type="button" class="button button--danger" [disabled]="deleting()" (click)="askDelete()">
+              {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
+            </button>
+          }
         </div>
       }
     }

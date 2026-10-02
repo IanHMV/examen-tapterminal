@@ -73,6 +73,8 @@ class ProductController extends Controller
                     ]
                 )
             ),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function index(): AnonymousResourceCollection
@@ -104,6 +106,8 @@ class ProductController extends Controller
                 )
             ),
             new OA\Response(ref: '#/components/responses/ProductValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function store(StoreProductRequest $request): JsonResponse
@@ -134,6 +138,8 @@ class ProductController extends Controller
                 )
             ),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function show(Product $product): ProductResource
@@ -164,6 +170,8 @@ class ProductController extends Controller
             ),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
             new OA\Response(ref: '#/components/responses/ProductValidationError', response: 422),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function update(UpdateProductRequest $request, Product $product): ProductResource
@@ -184,6 +192,8 @@ class ProductController extends Controller
         responses: [
             new OA\Response(response: 204, description: 'Producto eliminado (sin contenido).'),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+            new OA\Response(ref: '#/components/responses/Unauthenticated', response: 401),
+            new OA\Response(ref: '#/components/responses/Forbidden', response: 403),
         ]
     )]
     public function destroy(Product $product): Response
