@@ -1,0 +1,12 @@
+// Foto: vista previa a la izquierda del selector de archivo.
+.user-form__photo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  img {
+    object-fit: cover;
+    border-radius: 50%;
+    background: #e5e7eb;
+  }
+}

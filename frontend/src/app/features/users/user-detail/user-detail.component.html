@@ -1,0 +1,67 @@
+<section class="user-detail">
+  <a routerLink="/usuarios">← Volver al listado</a>
+
+  @switch (state()) {
+    @case ('loading') {
+      <p>Cargando usuario…</p>
+    }
+    @case ('not-found') {
+      <p class="alert alert--error" role="alert">El usuario no existe.</p>
+    }
+    @case ('error') {
+      <p class="alert alert--error" role="alert">No se pudo cargar el usuario. Intenta de nuevo.</p>
+    }
+    @case ('deleted') {
+      <p class="alert alert--success" role="status">Se eliminó el usuario {{ user()?.code }}.</p>
+    }
+    @case ('ready') {
+      @if (user(); as user) {
+        <div class="user-detail__header">
+          <img class="user-detail__photo" [src]="user.photo_url" [alt]="'Foto de perfil de ' + user.name"
+            width="96" height="96" />
+          <h2>{{ user.name }}</h2>
+        </div>
+
+        <dl class="details">
+          <dt>Código</dt>
+          <dd>{{ user.code }}</dd>
+          <dt>Usuario</dt>
+          <dd>{{ user.email }}</dd>
+          <dt>Nombre</dt>
+          <dd>{{ user.name }}</dd>
+          <dt>Teléfono</dt>
+          <dd>{{ user.phone ?? 'Sin teléfono' }}</dd>
+          <dt>Fecha de creación</dt>
+          <dd>{{ user.created_at | date: dateTimeFormat }}</dd>
+        </dl>
+
+        <h3 class="user-detail__subtitle">Perfiles</h3>
+        <ul class="user-detail__profiles">
+          @for (profile of user.profiles; track profile.code) {
+            <li>{{ profile.name }} <span class="user-detail__code">({{ profile.code }})</span></li>
+          } @empty {
+            <li>Sin perfiles asignados.</li>
+          }
+        </ul>
+
+        @if (deleteError(); as message) {
+          <p class="alert alert--error" role="alert">{{ message }}</p>
+        }
+
+        <div class="form-actions user-detail__actions">
+          <a class="button" [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
+          <button type="button" class="button button--danger" [disabled]="deleting()" (click)="askDelete()">
+            {{ deleting() ? 'Eliminando…' : 'Eliminar' }}
+          </button>
+        </div>
+      }
+    }
+  }
+
+  <app-confirm-dialog title="¿Eliminar usuario?" confirmLabel="Eliminar" (confirmed)="deleteUser()">
+    @if (user(); as user) {
+      <p>Se eliminará <strong>{{ user.code }}</strong> · {{ user.email }}, con su foto.</p>
+      <p>Esta acción no se puede deshacer.</p>
+    }
+  </app-confirm-dialog>
+</section>

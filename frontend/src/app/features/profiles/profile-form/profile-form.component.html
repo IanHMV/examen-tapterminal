@@ -53,7 +53,7 @@
         </div>
 
         @let sections = form.controls.sections;
-        <fieldset class="field profile-form__sections" [attr.aria-invalid]="sections.invalid && sections.touched"
+        <fieldset class="field checkbox-group" [attr.aria-invalid]="sections.invalid && sections.touched"
           aria-describedby="sections-error">
           <legend>Secciones a las que da acceso</legend>
           @for (section of sectionCatalog(); track section.key) {

@@ -67,6 +67,16 @@ describe('ProfileService', () => {
     request.flush(null, { status: 204, statusText: 'No Content' });
   });
 
+  it('options() devuelve todos los perfiles (código y nombre) sin paginar', () => {
+    const options = [{ code: 'PRF-0001', name: 'Administrador' }];
+    let result: unknown;
+
+    service.options().subscribe((response) => (result = response));
+    httpTesting.expectOne(`${baseUrl}/options`).flush({ data: options });
+
+    expect(result).toEqual(options);
+  });
+
   it('sections() devuelve el catálogo de secciones', () => {
     let result: Section[] | undefined;
 

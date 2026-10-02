@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResource, Paginated } from '../models/api.model';
-import { Profile, ProfileInput, Section } from '../models/profile.model';
+import { Profile, ProfileInput, ProfileOption, Section } from '../models/profile.model';
 
 /**
  * Operaciones de perfiles y catálogo de secciones en la API.
@@ -43,6 +43,13 @@ export class ProfileService {
   /** La API responde 204 (sin contenido). */
   delete(code: string): Observable<void> {
     return this.http.delete<void>(this.itemUrl(code));
+  }
+
+  /** Todos los perfiles (código y nombre), para elegirlos en el formulario de usuarios. */
+  options(): Observable<ProfileOption[]> {
+    return this.http
+      .get<ApiResource<ProfileOption[]>>(`${this.baseUrl}/options`)
+      .pipe(map((response) => response.data));
   }
 
   /** Catálogo de secciones que se pueden asignar a un perfil. */

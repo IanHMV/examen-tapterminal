@@ -1,0 +1,38 @@
+.user-detail {
+  max-width: 32rem;
+}
+
+.user-detail__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.user-detail__photo {
+  object-fit: cover;
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+
+.user-detail__subtitle {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.user-detail__profiles {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.user-detail__code {
+  color: #6b7280;
+}
+
+.user-detail__actions {
+  margin-top: 1.5rem;
+}

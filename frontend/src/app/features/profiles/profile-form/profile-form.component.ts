@@ -22,7 +22,6 @@ type LoadState = 'loading' | 'ready' | 'not-found' | 'error';
   selector: 'app-profile-form',
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './profile-form.component.html',
-  styleUrl: './profile-form.component.scss',
 })
 export class ProfileFormComponent {
   private readonly fb = inject(NonNullableFormBuilder);

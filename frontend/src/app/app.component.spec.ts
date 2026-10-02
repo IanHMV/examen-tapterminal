@@ -26,11 +26,11 @@ describe('AppComponent', () => {
     expect(compiled.querySelector('h1')?.textContent).toContain('Examen TAP Terminal');
   });
 
-  it('should link to products and profiles in the menu', () => {
+  it('should link to every section in the menu', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const links = Array.from((fixture.nativeElement as HTMLElement).querySelectorAll('.app-nav a'));
-    expect(links.map((link) => link.textContent?.trim())).toEqual(['Productos', 'Perfiles']);
-    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/productos', '/perfiles']);
+    expect(links.map((link) => link.textContent?.trim())).toEqual(['Productos', 'Usuarios', 'Perfiles']);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual(['/productos', '/usuarios', '/perfiles']);
   });
 });

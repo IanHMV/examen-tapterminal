@@ -89,4 +89,17 @@ describe('ProfileListComponent', () => {
     expect(screen().querySelector('[role="status"]')?.textContent).toContain('Se eliminó el perfil PRF-0001.');
     expect(screen().querySelectorAll('tbody tr').length).toBe(1);
   });
+
+  it('si el perfil está asignado a usuarios (409), muestra el motivo y no lo quita de la tabla', () => {
+    clickOnFirstRow('Eliminar');
+    (screen().querySelector('app-confirm-dialog .button--danger') as HTMLButtonElement).click();
+
+    httpTesting.expectOne(`${profilesUrl}/PRF-0001`).flush(
+      { message: 'No se puede eliminar: el perfil está asignado a 2 usuario(s).' },
+      { status: 409, statusText: 'Conflict' },
+    );
+
+    expect(screen().querySelector('[role="alert"]')?.textContent).toContain('asignado a 2 usuario(s)');
+    expect(screen().querySelectorAll('tbody tr').length).toBe(2);
+  });
 });

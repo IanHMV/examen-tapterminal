@@ -95,6 +95,38 @@ Los nombres van en inglés en el código y en la base de datos (`products`, `pri
   validación, el índice rechaza la segunda y la API responde 409 en lugar de 500. En una prueba
   con 12 altas simultáneas del mismo nombre se creó exactamente un perfil.
 
+```js
+// Colección "users"
+{
+  _id: ObjectId("66fb6a1e9c1d4b0012a3b4c7"),
+  code: "USR-0001",                                  // índice único
+  name: "Ana López",
+  email: "ana.lopez@tapterminal.com",                // índice único; siempre en minúsculas
+  phone: "+523141234567",                            // opcional, formato internacional E.164
+  password: "$2y$12$…",                              // bcrypt; nunca sale de la API
+  photo_id: "66fb6a1e9c1d4b0012a3b4c8",              // archivo en GridFS (bucket "photos")
+  profile_codes: ["PRF-0002"],                       // índice multikey
+  created_at: ISODate("2026-10-01T18:30:00Z"),
+  updated_at: ISODate("2026-10-01T18:30:00Z")
+}
+```
+
+- **Perfiles por referencia, no copiados:** el usuario guarda los códigos de sus perfiles (únicos e
+  inmutables). Si un perfil cambia de nombre o de secciones, el usuario lo ve al instante. Un índice
+  multikey sobre `profile_codes` permite saber qué usuarios tienen un perfil; por eso la API responde
+  409 si se intenta borrar un perfil asignado.
+- **Fotos en GridFS:** el sistema de archivos de MongoDB guarda cada imagen en `photos.files` (datos)
+  y `photos.chunks` (contenido en trozos). Las fotos viven en la misma base de datos que el resto:
+  un solo respaldo y sin volúmenes extra en Docker. La API las sirve en `GET /users/{code}/photo`;
+  la URL lleva `?v=<id de la foto>`, así que cambia cuando cambia la foto y se puede guardar en caché.
+  Solo se aceptan JPG, PNG o WebP de hasta 2 MB, revisando el contenido real del archivo (SVG no:
+  puede llevar JavaScript).
+- **Contraseña generada por el sistema:** el alta del examen no tiene contraseña. La API genera una
+  aleatoria, la guarda cifrada con bcrypt y nunca la devuelve; el usuario recibe sus credenciales por
+  correo. El administrador inicial se crea con `ADMIN_EMAIL` y `ADMIN_PASSWORD` del `.env`.
+- **Datos normalizados antes de validar:** el correo se guarda en minúsculas y el teléfono sin
+  espacios (`+52 (314) 123-4567` → `+523141234567`), así no hay duplicados por formato.
+
 ## Bitácora de desarrollo
 Registro del avance del proyecto
 > No confundir con la **bitácora de cambios del sistema** (historial de datos anterior vs. actual)
@@ -118,3 +150,4 @@ Registro del avance del proyecto
 | TICK-15 | 2026-10-01 | Edición de productos: `PUT /api/v1/products/{code}` y el mismo formulario del alta en modo edición. | [#16](https://github.com/IanHMV/examen-tapterminal/pull/16) |
 | TICK-16 | 2026-10-01 | Eliminación de productos: `DELETE /api/v1/products/{code}` y diálogo de confirmación reutilizable. | [#17](https://github.com/IanHMV/examen-tapterminal/pull/17) |
 | TICK-17 | 2026-10-01 | Perfiles y secciones: CRUD completo, detalle en ventana modal, nombre único sin distinguir mayúsculas y estilos compartidos. | [#18](https://github.com/IanHMV/examen-tapterminal/pull/18) |
+| TICK-18 | 2026-10-01 | Usuarios: CRUD completo, foto de perfil en GridFS, teléfono con lada, perfiles asignados y administrador inicial. | [#19](https://github.com/IanHMV/examen-tapterminal/pull/19) |

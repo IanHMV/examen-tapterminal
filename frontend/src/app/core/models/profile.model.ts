@@ -16,6 +16,12 @@ export interface Profile {
   updated_at: string;
 }
 
+/** Perfil resumido: opción de un formulario o perfil asignado a un usuario. */
+export interface ProfileOption {
+  code: string;
+  name: string;
+}
+
 /** Datos para crear o editar un perfil (esquema ProfileInput en Swagger). */
 export interface ProfileInput {
   name: string;
