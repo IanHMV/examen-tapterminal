@@ -1,0 +1,70 @@
+<section>
+  <header class="page-header">
+    <h2>Usuarios</h2>
+    <a class="button" routerLink="/usuarios/nuevo">Nuevo usuario</a>
+  </header>
+
+  @if (notice(); as message) {
+    <p class="alert alert--success" role="status">{{ message }}</p>
+  }
+
+  @if (deleteError(); as message) {
+    <p class="alert alert--error" role="alert">{{ message }}</p>
+  }
+
+  @switch (state()) {
+    @case ('loading') {
+      <p>Cargando usuarios…</p>
+    }
+    @case ('error') {
+      <p class="alert alert--error" role="alert">No se pudo cargar el listado. Intenta de nuevo.</p>
+    }
+    @case ('ready') {
+      @if (result(); as page) {
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Fecha de creación</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of page.data; track user.id) {
+              <tr>
+                <td>{{ user.code }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.created_at | date: dateTimeFormat }}</td>
+                <td class="table__actions">
+                  <a [routerLink]="['/usuarios', user.code]">Ver</a>
+                  <a [routerLink]="['/usuarios', user.code, 'editar']">Editar</a>
+                  <button type="button" class="link-button link-button--danger" [disabled]="deleting()"
+                    (click)="askDelete(user)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">No hay usuarios en esta página.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <app-pagination [page]="page" itemsLabel="usuarios" />
+      }
+    }
+  }
+
+  <!-- Fuera del @switch: siempre existe, aunque la tabla se esté recargando. -->
+  <app-confirm-dialog title="¿Eliminar usuario?" confirmLabel="Eliminar" (confirmed)="deletePending()">
+    @if (pendingDelete(); as user) {
+      <p>Se eliminará <strong>{{ user.code }}</strong> · {{ user.email }}, con su foto.</p>
+      <p>Esta acción no se puede deshacer.</p>
+    }
+  </app-confirm-dialog>
+</section>

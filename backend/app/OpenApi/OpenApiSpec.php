@@ -22,6 +22,7 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: 'Sistema', description: 'Estado y salud del servicio')]
 #[OA\Tag(name: 'Productos', description: 'Catálogo de productos')]
 #[OA\Tag(name: 'Perfiles', description: 'Perfiles de usuario y las secciones a las que dan acceso')]
+#[OA\Tag(name: 'Usuarios', description: 'Usuarios, su foto de perfil y sus perfiles')]
 #[OA\Schema(
     schema: 'ValidationError',
     description: 'Respuesta 422 de Laravel: un mensaje general y los errores de cada campo.',

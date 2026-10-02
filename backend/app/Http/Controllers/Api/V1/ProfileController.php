@@ -7,6 +7,7 @@ use App\Http\Requests\StoreProfileRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\ProfileResource;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -78,6 +79,44 @@ class ProfileController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return ProfileResource::collection(Profile::query()->latest()->paginate(self::PER_PAGE));
+    }
+
+    #[OA\Get(
+        path: '/api/v1/profiles/options',
+        operationId: 'listProfileOptions',
+        summary: 'Opciones de perfiles',
+        description: 'Todos los perfiles (código y nombre), ordenados por nombre, para el formulario de usuarios.',
+        tags: ['Perfiles'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Lista completa, sin paginar.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'code', type: 'string', example: 'PRF-0001'),
+                                    new OA\Property(property: 'name', type: 'string', example: 'Administrador'),
+                                ],
+                                type: 'object'
+                            )
+                        ),
+                    ]
+                )
+            ),
+        ]
+    )]
+    public function options(): JsonResponse
+    {
+        // Solo los campos necesarios: es una lista corta para casillas de selección.
+        $profiles = Profile::query()->orderBy('name')->get(['code', 'name']);
+
+        return response()->json([
+            'data' => $profiles->map(fn (Profile $profile) => ['code' => $profile->code, 'name' => $profile->name]),
+        ]);
     }
 
     #[OA\Post(
@@ -175,16 +214,39 @@ class ProfileController extends Controller
         path: '/api/v1/profiles/{code}',
         operationId: 'deleteProfile',
         summary: 'Eliminar un perfil',
-        description: 'Borra el perfil de forma permanente. Su código no se vuelve a asignar.',
+        description: 'Borra el perfil de forma permanente. Su código no se vuelve a asignar. '
+            . 'No se puede borrar si está asignado a algún usuario.',
         tags: ['Perfiles'],
         parameters: [new OA\Parameter(ref: '#/components/parameters/ProfileCode')],
         responses: [
             new OA\Response(response: 204, description: 'Perfil eliminado (sin contenido).'),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
+            new OA\Response(
+                response: 409,
+                description: 'El perfil está asignado a usuarios.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'No se puede eliminar: el perfil está asignado a 2 usuario(s).'
+                        ),
+                    ]
+                )
+            ),
         ]
     )]
-    public function destroy(Profile $profile): Response
+    public function destroy(Profile $profile): Response|JsonResponse
     {
+        // Usa el índice multikey de users.profile_codes.
+        $assignedUsers = User::query()->where('profile_codes', $profile->code)->count();
+
+        if ($assignedUsers > 0) {
+            return response()->json([
+                'message' => "No se puede eliminar: el perfil está asignado a {$assignedUsers} usuario(s).",
+            ], Response::HTTP_CONFLICT);
+        }
+
         $profile->delete();
 
         return response()->noContent();

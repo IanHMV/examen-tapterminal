@@ -45,6 +45,27 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/profiles/profile-form/profile-form.component').then((m) => m.ProfileFormComponent),
   },
+  {
+    path: 'usuarios',
+    title: 'Usuarios | Examen TAP Terminal',
+    loadComponent: () => import('./features/users/user-list/user-list.component').then((m) => m.UserListComponent),
+  },
+  {
+    path: 'usuarios/nuevo',
+    title: 'Nuevo usuario | Examen TAP Terminal',
+    loadComponent: () => import('./features/users/user-form/user-form.component').then((m) => m.UserFormComponent),
+  },
+  {
+    path: 'usuarios/:code',
+    title: 'Detalle del usuario | Examen TAP Terminal',
+    loadComponent: () =>
+      import('./features/users/user-detail/user-detail.component').then((m) => m.UserDetailComponent),
+  },
+  {
+    path: 'usuarios/:code/editar',
+    title: 'Editar usuario | Examen TAP Terminal',
+    loadComponent: () => import('./features/users/user-form/user-form.component').then((m) => m.UserFormComponent),
+  },
   // Cualquier otra URL lleva al inicio (evita el error NG04002).
   // Apunta a la ruta final: Angular no encadena un redirect detrás de otro.
   { path: '**', redirectTo: 'productos' },
