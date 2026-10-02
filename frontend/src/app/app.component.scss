@@ -13,10 +13,30 @@
   padding: 1.5rem;
 }
 
+.app-header__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.app-session {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #d1d5db;
+}
+
+.app-session__logout {
+  color: #fff;
+}
+
 .app-nav {
   display: flex;
   gap: 1rem;
-  margin-top: 0.5rem;
 
   a {
     color: #d1d5db;

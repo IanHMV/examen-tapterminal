@@ -1,10 +1,18 @@
 <header class="app-header">
   <h1>Examen TAP Terminal</h1>
-  <nav class="app-nav" aria-label="Principal">
-    <a routerLink="/productos" routerLinkActive="app-nav__link--active">Productos</a>
-    <a routerLink="/usuarios" routerLinkActive="app-nav__link--active">Usuarios</a>
-    <a routerLink="/perfiles" routerLinkActive="app-nav__link--active">Perfiles</a>
-  </nav>
+  @if (auth.currentUser(); as user) {
+    <div class="app-header__bar">
+      <nav class="app-nav" aria-label="Principal">
+        <a routerLink="/productos" routerLinkActive="app-nav__link--active">Productos</a>
+        <a routerLink="/usuarios" routerLinkActive="app-nav__link--active">Usuarios</a>
+        <a routerLink="/perfiles" routerLinkActive="app-nav__link--active">Perfiles</a>
+      </nav>
+      <div class="app-session">
+        <span class="app-session__user">{{ user.name }} · {{ user.email }}</span>
+        <button type="button" class="link-button app-session__logout" (click)="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+  }
 </header>
 
 <main class="app-main">

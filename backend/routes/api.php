@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\HealthcheckController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\ProfileController;
@@ -17,16 +18,28 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->name('v1.')->group(function () {
+    // ---------- Públicas ----------
     Route::get('/healthcheck', HealthcheckController::class)->name('healthcheck');
 
-    Route::apiResource('products', ProductController::class);
+    // Máximo 5 intentos por minuto para cada correo (ver AppServiceProvider).
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('auth.login');
 
-    Route::get('/sections', SectionController::class)->name('sections.index');
-    // Antes de apiResource: si no, "options" se tomaría como el código de un perfil.
-    Route::get('/profiles/options', [ProfileController::class, 'options'])->name('profiles.options');
-    Route::apiResource('profiles', ProfileController::class);
+    // <img> no envía el token: la foto se protege con una URL firmada y temporal ("signed").
+    Route::get('/users/{user}/photo', [UserController::class, 'photo'])->middleware('signed')->name('users.photo.show');
 
-    Route::apiResource('users', UserController::class);
-    Route::get('/users/{user}/photo', [UserController::class, 'photo'])->name('users.photo.show');
-    Route::post('/users/{user}/photo', [UserController::class, 'updatePhoto'])->name('users.photo.update');
+    // ---------- Requieren sesión (Authorization: Bearer <token>) ----------
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/auth/me', [AuthController::class, 'me'])->name('auth.me');
+        Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
+
+        Route::apiResource('products', ProductController::class);
+
+        Route::get('/sections', SectionController::class)->name('sections.index');
+        // Antes de apiResource: si no, "options" se tomaría como el código de un perfil.
+        Route::get('/profiles/options', [ProfileController::class, 'options'])->name('profiles.options');
+        Route::apiResource('profiles', ProfileController::class);
+
+        Route::apiResource('users', UserController::class);
+        Route::post('/users/{user}/photo', [UserController::class, 'updatePhoto'])->name('users.photo.update');
+    });
 });

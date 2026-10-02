@@ -226,9 +226,15 @@ class UserController extends Controller
         path: '/api/v1/users/{code}/photo',
         operationId: 'showUserPhoto',
         summary: 'Foto de perfil',
-        description: 'Devuelve la imagen guardada en GridFS. Usa la URL de "photo_url": cambia cuando cambia la foto.',
+        description: 'Devuelve la imagen guardada en GridFS. No usa token: se pide con la URL firmada de "photo_url".',
+        security: [],
         tags: ['Usuarios'],
-        parameters: [new OA\Parameter(ref: '#/components/parameters/UserCode')],
+        parameters: [
+            new OA\Parameter(ref: '#/components/parameters/UserCode'),
+            new OA\Parameter(name: 'v', in: 'query', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'expires', in: 'query', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter(name: 'signature', in: 'query', required: true, schema: new OA\Schema(type: 'string')),
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -238,6 +244,15 @@ class UserController extends Controller
                     new OA\MediaType(mediaType: 'image/png', schema: new OA\Schema(type: 'string', format: 'binary')),
                     new OA\MediaType(mediaType: 'image/webp', schema: new OA\Schema(type: 'string', format: 'binary')),
                 ]
+            ),
+            new OA\Response(
+                response: 403,
+                description: 'La firma no es válida o la URL ya venció.',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'El enlace no es válido o ya venció.'),
+                    ]
+                )
             ),
             new OA\Response(ref: '#/components/responses/NotFound', response: 404),
         ]
@@ -251,8 +266,8 @@ class UserController extends Controller
         return response()->stream(fn () => fpassthru($photo['stream']), Response::HTTP_OK, [
             'Content-Type' => $photo['contentType'],
             'Content-Length' => (string) $photo['length'],
-            // La URL incluye ?v=<id de la foto>: si la foto cambia, cambia la URL.
-            'Cache-Control' => 'private, max-age=31536000, immutable',
+            // La URL firmada vence en 1 o 2 horas: el navegador puede guardarla una hora.
+            'Cache-Control' => 'private, max-age=3600',
             // El navegador no debe "adivinar" otro tipo de archivo.
             'X-Content-Type-Options' => 'nosniff',
         ]);

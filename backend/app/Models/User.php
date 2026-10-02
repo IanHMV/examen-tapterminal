@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\Section;
 use App\Models\Concerns\HasSequentialCode;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 
 /**
@@ -25,6 +27,7 @@ use MongoDB\Laravel\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasApiTokens;
     use HasFactory;
     use HasSequentialCode;
     use Notifiable;
@@ -62,6 +65,25 @@ class User extends Authenticatable
             ->whereIn('code', $this->profile_codes ?? [])
             ->orderBy('name')
             ->get();
+    }
+
+    /**
+     * Secciones a las que el usuario tiene acceso: la suma de las de todos sus
+     * perfiles, sin repetir y en el orden del catálogo.
+     *
+     * @return list<Section>
+     */
+    public function accessibleSections(): array
+    {
+        $keys = $this->assignedProfiles()
+            ->flatMap(fn (Profile $profile) => $profile->sections ?? [])
+            ->unique()
+            ->all();
+
+        return array_values(array_filter(
+            Section::cases(),
+            fn (Section $section) => in_array($section->value, $keys, true),
+        ));
     }
 
     /** Prefijo del código autogenerado: USR-0001. */

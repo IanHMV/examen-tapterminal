@@ -13,7 +13,8 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    // "sync": no hay worker de colas; los trabajos (correos) se ejecutan en la petición.
+    'default' => env('QUEUE_CONNECTION', 'sync'),
 
     /*
     |--------------------------------------------------------------------------
