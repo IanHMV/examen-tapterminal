@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Pide contraseña (HTTP Basic) para ver Swagger. La contraseña viene de SWAGGER_PASSWORD
- * en el .env; si está vacía (desarrollo), la documentación queda abierta.
+ * Swagger solo se puede consultar con la contraseña de SWAGGER_PASSWORD (.env),
+ * enviada con HTTP Basic: el navegador la pide en una ventana (cualquier usuario).
  */
 class ProtectApiDocs
 {
@@ -16,7 +16,8 @@ class ProtectApiDocs
     {
         $password = (string) config('l5-swagger.defaults.password');
 
-        if ($password === '' || hash_equals($password, (string) $request->getPassword())) {
+        // Sin contraseña configurada nadie entra; hash_equals compara sin revelar nada por el tiempo.
+        if ($password !== '' && hash_equals($password, (string) $request->getPassword())) {
             return $next($request);
         }
 
