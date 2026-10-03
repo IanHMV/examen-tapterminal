@@ -50,7 +50,7 @@ return [
         ],
     ],
     'defaults' => [
-        // Contraseña para ver Swagger (HTTP Basic, cualquier usuario). Vacía = sin contraseña.
+        // Contraseña para ver Swagger (HTTP Basic, cualquier usuario). Sin ella, nadie entra.
         'password' => env('SWAGGER_PASSWORD'),
 
         'routes' => [
@@ -68,7 +68,7 @@ return [
              * Middleware allows to prevent unexpected access to API documentation
              */
             'middleware' => [
-                // Swagger (pantalla y JSON) pide contraseña si SWAGGER_PASSWORD tiene valor.
+                // Swagger (pantalla y JSON) pide la contraseña de SWAGGER_PASSWORD.
                 'api' => [App\Http\Middleware\ProtectApiDocs::class],
                 'asset' => [],
                 'docs' => [App\Http\Middleware\ProtectApiDocs::class],
