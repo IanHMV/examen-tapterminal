@@ -54,6 +54,10 @@ Sistema web desarrollado para el examen de admisión del Área de Desarrollo de 
 | Laravel 11 + PHP 8.2, Angular 19 + TypeScript 5, MongoDB, Swagger/Postman, Git, PSR-12 | Ver [Stack](#stack). Pint revisa PSR-12 en cada PR |
 | Extras: pruebas y CI/CD | 38 pruebas de la API, 142 de Angular, GitHub Actions y despliegue automático |
 
+
+## Clave Swagger :
+1uXmX7j2B88gkA9xaGCMTish5a3yaP0uXy4vwYxv (viene en el documento)
+
 ## Cómo ejecutarlo en local
 
 Requisitos: Docker Desktop, Node.js 20 o superior y Git.
